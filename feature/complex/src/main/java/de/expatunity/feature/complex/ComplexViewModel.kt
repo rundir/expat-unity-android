@@ -3,16 +3,15 @@ package de.expatunity.feature.complex
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlin.coroutines.cancellation.CancellationException
+import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 
 @Serializable
 data class ComplexDestination(val id: String)
@@ -29,7 +28,7 @@ class ComplexViewModel @Inject constructor(
     private val repository: ComplexRepository,
 ) : ViewModel() {
     private val locale: String = "de"
-    private val id = savedStateHandle.toRoute<ComplexDestination>().id
+    private val id: String = checkNotNull(savedStateHandle["id"])
     private val _state = MutableStateFlow<ComplexUiState>(ComplexUiState.Loading)
     val state = _state.asStateFlow()
 
