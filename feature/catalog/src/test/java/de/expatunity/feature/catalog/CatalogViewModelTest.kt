@@ -3,6 +3,7 @@ package de.expatunity.feature.catalog
 import app.cash.turbine.test
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.domain.LocaleProvider
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import org.junit.Assert.assertTrue
@@ -16,7 +17,15 @@ class CatalogViewModelTest {
     @get:Rule
     val main = MainDispatcherRule()
 
-    private fun vm() = CatalogViewModel(repo)
+    private fun vm(): CatalogViewModel {
+
+        val localeProvider = object : LocaleProvider { override fun apiLocale() = "de" }
+
+        return CatalogViewModel(
+            repo,
+            localeProvider
+        )
+    }
 
     @Test
     fun `success shows content`() = runTest {

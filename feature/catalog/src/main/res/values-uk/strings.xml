@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_retry">Повторити</string>
+    <string name="catalog_empty">Поки немає обʼєктів</string>
+    <string name="price_on_request">Ціна за запитом</string>
+    <string name="price_from">від %1$,.0f €</string>
+    <string name="catalog_status_units">%1$s · вільно: %2$d</string>
+    <string name="error_unknown">Невідома помилка</string>
+    <string name="status_active">У продажу</string>
+    <string name="status_reserved">Зарезервовано</string>
+    <string name="status_sold">Продано</string>
+    <string name="status_unknown">Невідомо</string>
+</resources>

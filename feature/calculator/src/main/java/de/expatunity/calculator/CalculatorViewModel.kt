@@ -1,5 +1,6 @@
 package de.expatunity.calculator
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
@@ -7,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.InvestmentCalculator
 import de.expatunity.core.domain.InvestmentParams
 import de.expatunity.core.domain.InvestmentResult
+import de.expatunity.feature.calculator.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,11 +18,15 @@ import javax.inject.Inject
 @Serializable
 data class CalculatorDestination(val price: Double? = null, val rent: Double? = null)
 
-enum class Field(val label: String, val default: String) {
-    Price("Цена, €", "318000"), Cash("Свои средства, €", "70000"),
-    Expenses("Расходы сделки, €", "0"), Interest("Ставка, %", "4.3"),
-    Tilgung("Погашение, %", "1.0"), Rent("Аренда, €/мес", "1010"),
-    Management("Управление, €/мес", "40"), Tax("Налог, %", "42"),
+enum class Field(@StringRes val labelRes: Int, val default: String) {
+    Price(R.string.field_price, "318000"),
+    Cash(R.string.field_cash, "70000"),
+    Expenses(R.string.field_expenses, "0"),
+    Interest(R.string.field_interest, "4.3"),
+    Tilgung(R.string.field_tilgung, "1.0"),
+    Rent(R.string.field_rent, "1010"),
+    Management(R.string.field_management, "40"),
+    Tax(R.string.field_tax, "42"),
 }
 
 data class CalculatorUiState(

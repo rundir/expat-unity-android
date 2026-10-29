@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_retry">Erneut versuchen</string>
+    <string name="cd_navigate_back">Zurück</string>
+    <string name="complex_apartments_section">Wohnungen</string>
+    <string name="apartment_headline">Nr. %1$s · %2$s m²</string>
+    <string name="value_unknown">?</string>
+    <string name="price_on_request">Preis auf Anfrage</string>
+    <string name="price_eur">%1$,.0f €</string>
+    <string name="action_calculate">Berechnen</string>
+    <string name="error_generic">Fehler</string>
+    <string name="status_active">Verfügbar</string>
+    <string name="status_reserved">Reserviert</string>
+    <string name="status_sold">Verkauft</string>
+    <string name="status_unknown">Unbekannt</string>
+</resources>

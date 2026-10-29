@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_navigate_back">Назад</string>
+    <string name="calculator_title">Прогноз на 10 лет</string>
+    <string name="calculator_yearly_section">По годам</string>
+    <string name="calc_label_loan">Кредит</string>
+    <string name="calc_label_monthly_payment">Платёж в месяц</string>
+    <string name="calc_label_cashflow_10y">Cashflow за 10 лет</string>
+    <string name="calc_label_equity_gained">Погашено тела</string>
+    <string name="calc_label_appreciation">Рост стоимости</string>
+    <string name="calc_label_total_return">Итого доходность</string>
+    <string name="calc_year_tax_refund">Возврат %1$s</string>
+    <string name="price_eur">%1$,.0f €</string>
+    <string name="field_price">Цена, €</string>
+    <string name="field_cash">Свои средства, €</string>
+    <string name="field_expenses">Расходы сделки, €</string>
+    <string name="field_interest">Ставка, %</string>
+    <string name="field_tilgung">Погашение, %</string>
+    <string name="field_rent">Аренда, €/мес</string>
+    <string name="field_management">Управление, €/мес</string>
+    <string name="field_tax">Налог, %</string>
+</resources>

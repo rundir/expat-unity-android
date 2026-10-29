@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -51,14 +52,20 @@ fun CatalogScreen(
             Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(state.message)
-            Button(onClick = onRetry) { Text("Повторить") }
+            Text(state.message ?: stringResource(R.string.error_unknown))
+            Button(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
         }
         is CatalogUiState.Content ->
-            if (state.items.isEmpty()) Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Пока нет объектов") }
-            else LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), modifier = modifier) {
+            if (state.items.isEmpty()) {
+                Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    Text(stringResource(R.string.catalog_empty))
+                }
+            } else LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = modifier,
+            ) {
                 items(state.items, key = { it.id }) { ComplexCard(it, onClick = { onOpenComplex(it.id) }) }
-
             }
     }
 }
@@ -74,11 +81,31 @@ private fun ComplexCard(item: ComplexSummary, onClick: () -> Unit) {
         Column(Modifier.padding(12.dp)) {
             Text(item.name, style = MaterialTheme.typography.titleMedium)
             item.city?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-            Text(item.priceFrom?.let { "от %,.0f €".format(it) } ?: "Цена по запросу")
-            Text("${item.status} · свободно: ${item.unitsAvailable}", style = MaterialTheme.typography.labelSmall)
+            Text(
+                item.priceFrom?.let { stringResource(R.string.price_from, it) }
+                    ?: stringResource(R.string.price_on_request)
+            )
+            Text(
+                stringResource(
+                    R.string.catalog_status_units,
+                    item.status.label(),
+                    item.unitsAvailable,
+                ),
+                style = MaterialTheme.typography.labelSmall,
+            )
         }
     }
 }
+
+@Composable
+private fun ListingStatus.label(): String = stringResource(
+    when (this) {
+        ListingStatus.ACTIVE -> R.string.status_active
+        ListingStatus.RESERVED -> R.string.status_reserved
+        ListingStatus.SOLD -> R.string.status_sold
+        ListingStatus.UNKNOWN -> R.string.status_unknown
+    }
+)
 
 @Preview
 @Composable

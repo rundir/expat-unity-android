@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ComplexSummary
+import de.expatunity.core.domain.LocaleProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,15 +16,15 @@ import kotlin.coroutines.cancellation.CancellationException
 sealed interface CatalogUiState {
     data object Loading : CatalogUiState
     data class Content(val items: List<ComplexSummary>) : CatalogUiState
-    data class Error(val message: String) : CatalogUiState
+    data class Error(val message: String?) : CatalogUiState
 }
 
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
-    private val repository: ComplexRepository
+    private val repository: ComplexRepository,
+    private val localeProvider: LocaleProvider
 ) : ViewModel() {
 
-    private val locale: String = "de"
     private val _state = MutableStateFlow<CatalogUiState>(CatalogUiState.Loading)
     val state: StateFlow<CatalogUiState> = _state.asStateFlow()
 
@@ -33,11 +34,11 @@ class CatalogViewModel @Inject constructor(
         _state.value = CatalogUiState.Loading
         viewModelScope.launch {
             _state.value = try {
-                CatalogUiState.Content(repository.getComplexes(locale))
+                CatalogUiState.Content(repository.getComplexes(localeProvider.apiLocale()))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                CatalogUiState.Error(e.message ?: "Unknown error")
+                CatalogUiState.Error(e.message)
             }
         }
     }

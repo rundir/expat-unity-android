@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_navigate_back">Zurück</string>
+    <string name="calculator_title">10-Jahres-Prognose</string>
+    <string name="calculator_yearly_section">Nach Jahren</string>
+    <string name="calc_label_loan">Kredit</string>
+    <string name="calc_label_monthly_payment">Monatliche Rate</string>
+    <string name="calc_label_cashflow_10y">Cashflow über 10 Jahre</string>
+    <string name="calc_label_equity_gained">Tilgung (Eigenkapital)</string>
+    <string name="calc_label_appreciation">Wertsteigerung</string>
+    <string name="calc_label_total_return">Gesamtrendite</string>
+    <string name="calc_year_tax_refund">Steuererstattung %1$s</string>
+    <string name="price_eur">%1$,.0f €</string>
+    <string name="field_price">Preis, €</string>
+    <string name="field_cash">Eigenkapital, €</string>
+    <string name="field_expenses">Kaufnebenkosten, €</string>
+    <string name="field_interest">Zinssatz, %</string>
+    <string name="field_tilgung">Tilgung, %</string>
+    <string name="field_rent">Miete, €/Mon.</string>
+    <string name="field_management">Verwaltung, €/Mon.</string>
+    <string name="field_tax">Steuer, %</string>
+</resources>

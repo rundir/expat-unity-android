@@ -25,14 +25,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import de.expatunity.core.domain.InvestmentResult
 import de.expatunity.core.domain.YearProjection
+import de.expatunity.feature.calculator.R
 
 @Composable
 fun CalculatorRoute(
@@ -52,10 +53,13 @@ fun CalculatorScreen(
 ) {
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text("Прогноз на 10 лет") },
+            title = { Text(stringResource(R.string.calculator_title)) },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.cd_navigate_back),
+                    )
                 }
             },
         )
@@ -64,12 +68,17 @@ fun CalculatorScreen(
             contentPadding = padding,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { Text("Прогноз на 10 лет", style = MaterialTheme.typography.headlineSmall) }
+            item {
+                Text(
+                    stringResource(R.string.calculator_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+            }
             items(Field.entries) { f ->
                 OutlinedTextField(
                     value = state.inputs.getValue(f),
                     onValueChange = { onChange(f, it) },
-                    label = { Text(f.label) },
+                    label = { Text(stringResource(f.labelRes)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -77,7 +86,12 @@ fun CalculatorScreen(
             }
             state.result?.let { r ->
                 item { SummaryCard(r) }
-                item { Text("По годам", style = MaterialTheme.typography.titleMedium) }
+                item {
+                    Text(
+                        stringResource(R.string.calculator_yearly_section),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
                 items(r.yearlyBreakdown, key = { it.year }) { YearRow(it) }
             }
         }
@@ -87,22 +101,24 @@ fun CalculatorScreen(
 @Composable
 private fun SummaryCard(r: InvestmentResult) = Card(Modifier.fillMaxWidth()) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Line("Кредит", r.loanAmount)
-        Line("Платёж в месяц", r.monthlyAnnuity)
-        Line("Cashflow за 10 лет", r.totalNetCashflow)
-        Line("Погашено тела", r.equityGained)
-        Line("Рост стоимости", r.totalAppreciation)
+        Line(stringResource(R.string.calc_label_loan), r.loanAmount)
+        Line(stringResource(R.string.calc_label_monthly_payment), r.monthlyAnnuity)
+        Line(stringResource(R.string.calc_label_cashflow_10y), r.totalNetCashflow)
+        Line(stringResource(R.string.calc_label_equity_gained), r.equityGained)
+        Line(stringResource(R.string.calc_label_appreciation), r.totalAppreciation)
         HorizontalDivider()
-        Line("Итого доходность", r.totalReturn, bold = true)
+        Line(stringResource(R.string.calc_label_total_return), r.totalReturn, bold = true)
     }
 }
 
 @Composable
 private fun YearRow(y: YearProjection) = Row(Modifier.fillMaxWidth()) {
     Text("${y.year}", Modifier.width(32.dp))
-    Text("Возврат ${y.taxRefund.eur()}", Modifier.weight(1f))
-    Text(y.netCashflow.eur(),
-        color = if (y.netCashflow < 0) MaterialTheme.colorScheme.error else Color.Unspecified)
+    Text(stringResource(R.string.calc_year_tax_refund, y.taxRefund.eur()), Modifier.weight(1f))
+    Text(
+        y.netCashflow.eur(),
+        color = if (y.netCashflow < 0) MaterialTheme.colorScheme.error else Color.Unspecified,
+    )
 }
 
 @Composable
@@ -111,4 +127,5 @@ private fun Line(label: String, value: Double, bold: Boolean = false) = Row(Modi
     Text(value.eur(), fontWeight = if (bold) FontWeight.Bold else null)
 }
 
-private fun Double.eur() = "%,.0f €".format(this)
+@Composable
+private fun Double.eur() = stringResource(R.string.price_eur, this)

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_retry">Повторити</string>
+    <string name="cd_navigate_back">Назад</string>
+    <string name="complex_apartments_section">Квартири</string>
+    <string name="apartment_headline">№ %1$s · %2$s м²</string>
+    <string name="value_unknown">?</string>
+    <string name="price_on_request">Ціна за запитом</string>
+    <string name="price_eur">%1$,.0f €</string>
+    <string name="action_calculate">Розрахувати</string>
+    <string name="error_generic">Помилка</string>
+    <string name="status_active">У продажу</string>
+    <string name="status_reserved">Зарезервовано</string>
+    <string name="status_sold">Продано</string>
+    <string name="status_unknown">Невідомо</string>
+</resources>

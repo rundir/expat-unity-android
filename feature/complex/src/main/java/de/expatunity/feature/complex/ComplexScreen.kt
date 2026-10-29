@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,7 +61,10 @@ fun ComplexScreen(
             title = { Text((state as? ComplexUiState.Content)?.complex?.name ?: "") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.cd_navigate_back),
+                    )
                 }
             },
         )
@@ -72,8 +76,8 @@ fun ComplexScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(state.message)
-                Button(onClick = onRetry) { Text("Повторить") }
+                Text(state.message ?: stringResource(R.string.error_generic))
+                Button(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
             }
             is ComplexUiState.Content -> LazyColumn(
                 contentPadding = padding,
@@ -99,17 +103,36 @@ fun ComplexScreen(
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                         c.description?.let { Text(it, Modifier.padding(top = 8.dp)) }
-                        Text("Квартиры", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+                        Text(
+                            stringResource(R.string.complex_apartments_section),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(top = 16.dp),
+                        )
                     }
                 }
                 items(c.apartments, key = { it.id }) { a ->
                     ListItem(
-                        headlineContent = { Text("№ ${a.title} · ${a.areaSqm ?: "?"} м²") },
-                        supportingContent = { Text(a.price?.let { "%,.0f €".format(it) } ?: "Цена по запросу") },
+                        headlineContent = {
+                            Text(
+                                stringResource(
+                                    R.string.apartment_headline,
+                                    a.title,
+                                    a.areaSqm?.toString() ?: stringResource(R.string.value_unknown),
+                                )
+                            )
+                        },
+                        supportingContent = {
+                            Text(
+                                a.price?.let { stringResource(R.string.price_eur, it) }
+                                    ?: stringResource(R.string.price_on_request)
+                            )
+                        },
                         trailingContent = {
                             if (a.status == ListingStatus.ACTIVE && a.price != null)
-                                TextButton(onClick = { onCalculate(a) }) { Text("Посчитать") }
-                            else Text(a.status.name, style = MaterialTheme.typography.labelSmall)
+                                TextButton(onClick = { onCalculate(a) }) {
+                                    Text(stringResource(R.string.action_calculate))
+                                }
+                            else Text(a.status.label(), style = MaterialTheme.typography.labelSmall)
                         },
                     )
                 }
@@ -117,3 +140,13 @@ fun ComplexScreen(
         }
     }
 }
+
+@Composable
+private fun ListingStatus.label(): String = stringResource(
+    when (this) {
+        ListingStatus.ACTIVE -> R.string.status_active
+        ListingStatus.RESERVED -> R.string.status_reserved
+        ListingStatus.SOLD -> R.string.status_sold
+        ListingStatus.UNKNOWN -> R.string.status_unknown
+    }
+)
