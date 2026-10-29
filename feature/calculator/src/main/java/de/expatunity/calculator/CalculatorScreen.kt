@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.expatunity.core.domain.InvestmentResult
@@ -35,7 +36,7 @@ import de.expatunity.core.domain.YearProjection
 
 @Composable
 fun CalculatorRoute(
-    vm: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory),
+    vm: CalculatorViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
     val state by vm.state.collectAsStateWithLifecycle()

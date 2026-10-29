@@ -2,21 +2,16 @@ package de.expatunity.calculator
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.InvestmentCalculator
 import de.expatunity.core.domain.InvestmentParams
 import de.expatunity.core.domain.InvestmentResult
-import de.expatunity.core.domain.YieldCalculator
-import de.expatunity.core.domain.YieldInput
-import de.expatunity.core.domain.YieldResult
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
 @Serializable
 data class CalculatorDestination(val price: Double? = null, val rent: Double? = null)
@@ -33,7 +28,8 @@ data class CalculatorUiState(
     val result: InvestmentResult? = null,
 )
 
-class CalculatorViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+@HiltViewModel
+class CalculatorViewModel @Inject constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val args = savedStateHandle.toRoute<CalculatorDestination>()
     private val _state = MutableStateFlow(
@@ -75,11 +71,5 @@ class CalculatorViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                 afaRate = 0.025,
             )
         ))
-    }
-
-    companion object {
-        val Factory = viewModelFactory {
-            initializer { CalculatorViewModel(createSavedStateHandle()) }
-        }
     }
 }

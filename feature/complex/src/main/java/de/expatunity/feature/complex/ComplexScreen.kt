@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import de.expatunity.core.domain.Apartment
@@ -38,7 +39,7 @@ import de.expatunity.core.domain.ListingStatus
 
 @Composable
 fun ComplexRoute(
-    viewModel: ComplexViewModel,
+    viewModel: ComplexViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onCalculate: (Apartment) -> Unit,
 ) {

@@ -24,20 +24,15 @@ object CatalogDestination // можно положить в feature:catalog
 @Composable
 fun ExpatUnityApp() {
     val nav = rememberNavController()
-    val repo = NetworkModule.complexRepository
-    val locale = "de"
 
     NavHost(nav, startDestination = CatalogDestination) {
         composable<CatalogDestination> {
-            val vm: CatalogViewModel = viewModel(factory = CatalogViewModel.factory(repo, locale))
             Scaffold { p ->
-                CatalogRoute(vm, onOpenComplex = { nav.navigate(ComplexDestination(it)) }, modifier = Modifier.padding(p))
+                CatalogRoute(onOpenComplex = { nav.navigate(ComplexDestination(it)) }, modifier = Modifier.padding(p))
             }
         }
         composable<ComplexDestination> {
-            val vm: ComplexViewModel = viewModel(factory = ComplexViewModel.factory(repo, locale))
             ComplexRoute(
-                vm,
                 onBack = nav::popBackStack,
                 onCalculate = { a -> nav.navigate(CalculatorDestination(a.price, a.expectedRentMonthly)) },
             )
@@ -45,7 +40,7 @@ fun ExpatUnityApp() {
         composable<CalculatorDestination> {
             CalculatorRoute(
                 onBack = nav::popBackStack,
-                ) // внутри возьми SavedStateHandle через factory так же, как в ComplexViewModel
+                )
         }
     }
 }

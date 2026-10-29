@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import de.expatunity.core.domain.ComplexSummary
@@ -29,7 +30,7 @@ import de.expatunity.core.domain.ListingStatus
 
 @Composable
 fun CatalogRoute(
-    viewModel: CatalogViewModel,
+    viewModel: CatalogViewModel = hiltViewModel(),
     onOpenComplex: (String) -> Unit,
     modifier: Modifier,
 ) {
