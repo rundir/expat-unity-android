@@ -42,4 +42,18 @@ class CatalogViewModel @Inject constructor(
             }
         }
     }
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing = _refreshing.asStateFlow()
+
+    fun refresh() {
+        viewModelScope.launch {
+            _refreshing.value = true
+            try {
+                _state.value = CatalogUiState.Content(repository.getComplexes(localeProvider.apiLocale()))
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { /* оставляем старый контент; позже можно показать Snackbar */ }
+            finally { _refreshing.value = false }
+        }
+    }
+
 }
