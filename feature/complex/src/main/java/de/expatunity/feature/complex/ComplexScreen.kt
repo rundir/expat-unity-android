@@ -31,12 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import de.expatunity.app.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.Apartment
+import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.ui.LocalePreviews
 
 @Composable
 fun ComplexRoute(
@@ -150,3 +154,43 @@ private fun ListingStatus.label(): String = stringResource(
         ListingStatus.UNKNOWN -> R.string.status_unknown
     }
 )
+
+private val previewComplex = ComplexDetail(
+    id = "1",
+    name = "Mobile Test Landshut",
+    address = "Landshut",
+    description = "Neubau, 2026",
+    images = emptyList(),
+    apartments = listOf(
+        Apartment(
+            id = "a1", title = "1", areaSqm = 54.0, price = 165000.0,
+            expectedRentMonthly = 650.0, status = ListingStatus.ACTIVE
+        ),
+        Apartment(
+            id = "a2", title = "2", areaSqm = 72.0, price = null,
+            expectedRentMonthly = null, status = ListingStatus.SOLD
+        ),
+    ),
+    city = "Landshut",
+    status = ListingStatus.ACTIVE,
+    fallbackUsed = false,
+)
+
+@LocalePreviews
+@Composable
+private fun ComplexScreenPreview() {
+    ExpatUnityTheme {
+        ComplexScreen(
+            state = ComplexUiState.Content(previewComplex),
+            onBack = {}, onRetry = {}, onCalculate = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ComplexErrorPreview() {
+    ExpatUnityTheme {
+        ComplexScreen(ComplexUiState.Error("offline"), {}, {}, {})
+    }
+}

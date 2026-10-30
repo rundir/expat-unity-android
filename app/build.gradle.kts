@@ -42,6 +42,7 @@ android {
 dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(project(":core:ui"))
     implementation(project(":core:network"))
     implementation(project(":feature:catalog"))
     implementation(project(":feature:calculator"))
