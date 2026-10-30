@@ -22,6 +22,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.compose.material3)

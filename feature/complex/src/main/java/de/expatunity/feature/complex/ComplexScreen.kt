@@ -3,14 +3,10 @@ package de.expatunity.feature.complex
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -28,18 +24,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import de.expatunity.app.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.ui.ImageGallery
 import de.expatunity.core.ui.LocalePreviews
 
 @Composable
@@ -89,19 +83,7 @@ fun ComplexScreen(
             ) {
                 val c = state.complex
                 item {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(c.images) { url ->
-                            AsyncImage(
-                                model = url,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(280.dp, 180.dp).clip(RoundedCornerShape(12.dp)),
-                            )
-                        }
-                    }
+                    ImageGallery(c.images)
                 }
                 item {
                     Column(Modifier.padding(horizontal = 16.dp)) {
@@ -160,7 +142,7 @@ private val previewComplex = ComplexDetail(
     name = "Mobile Test Landshut",
     address = "Landshut",
     description = "Neubau, 2026",
-    images = emptyList(),
+    images = listOf("test","test1", "test2"),
     apartments = listOf(
         Apartment(
             id = "a1", title = "1", areaSqm = 54.0, price = 165000.0,
