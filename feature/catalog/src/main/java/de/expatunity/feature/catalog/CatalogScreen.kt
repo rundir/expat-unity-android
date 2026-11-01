@@ -23,14 +23,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import de.expatunity.app.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.ui.LocalePreviews
 
 @Composable
 fun CatalogRoute(
@@ -116,11 +121,12 @@ private fun ComplexCard(item: ComplexSummary, onClick: () -> Unit) {
                 item.priceFrom?.let { stringResource(R.string.price_from, it) }
                     ?: stringResource(R.string.price_on_request)
             )
+            val units = pluralStringResource(R.plurals.catalog_units_available, item.unitsAvailable, item.unitsAvailable)
             Text(
                 stringResource(
                     R.string.catalog_status_units,
                     item.status.label(),
-                    item.unitsAvailable,
+                    units,
                 ),
                 style = MaterialTheme.typography.labelSmall,
             )
@@ -139,6 +145,7 @@ private fun ListingStatus.label(): String = stringResource(
 )
 
 @Preview
+@LocalePreviews
 @Composable
 private fun CatalogPreview() = CatalogScreen(
     CatalogUiState.Content(
@@ -159,3 +166,17 @@ private fun CatalogPreview() = CatalogScreen(
     refreshing = false,
     onRefresh = {}
 )
+
+class UnitCountProvider : PreviewParameterProvider<Int> {
+    override val values = sequenceOf(1, 3, 5, 21)
+}
+
+@LocalePreviews
+@Composable
+private fun UnitsPreview(
+    @PreviewParameter(UnitCountProvider::class) count: Int
+) {
+    ExpatUnityTheme {
+        Text(pluralStringResource(R.plurals.catalog_units_available, count, count))
+    }
+}

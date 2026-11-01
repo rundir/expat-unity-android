@@ -4,10 +4,14 @@
     <string name="catalog_empty">No properties yet</string>
     <string name="price_on_request">Price on request</string>
     <string name="price_from">from %1$,.0f €</string>
-    <string name="catalog_status_units">%1$s · available: %2$d</string>
+    <string name="catalog_status_units">%1$s · %2$s</string>
     <string name="error_unknown">Unknown error</string>
     <string name="status_active">Available</string>
     <string name="status_reserved">Reserved</string>
     <string name="status_sold">Sold</string>
     <string name="status_unknown">Unknown</string>
+    <plurals name="catalog_units_available">
+        <item quantity="one">%d unit available</item>
+        <item quantity="other">%d units available</item>
+    </plurals>
 </resources>
