@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mikepenz.markdown.m3.Markdown
 import de.expatunity.app.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.domain.ComplexDetail
@@ -88,7 +90,10 @@ fun ComplexScreen(
                 item {
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-                        c.description?.let { Text(it, Modifier.padding(top = 8.dp)) }
+                        Markdown(
+                            content = c.description?:"",
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         Text(
                             stringResource(R.string.complex_apartments_section),
                             style = MaterialTheme.typography.titleMedium,

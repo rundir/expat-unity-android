@@ -11,6 +11,7 @@ composeBom = "2026.09.00"
 jetbrainsKotlinJvm = "2.4.21"
 appcompat = "1.8.0"
 material = "1.14.0"
+multiplatformMarkdownRendererM3 = "0.46.0"
 retrofit = "3.0.0"
 okhttp = "5.5.1"
 kotlinxSerialization = "1.12.0"
@@ -20,7 +21,7 @@ navigation = "2.10.2"
 hilt = "2.60.1"
 ksp = "2.3.10"   # должна совпадать с твоей версией Kotlin
 hiltNavigationCompose = "1.4.0"
-coroutinesTest = "1.10.2"
+coroutinesTest = "1.11.0"
 turbine = "1.2.1"
 uiToolingPreview = "1.12.1"
 uiTooling = "1.12.1"
@@ -45,6 +46,7 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRendererM3" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }

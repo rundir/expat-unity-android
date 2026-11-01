@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.multiplatform.markdown.renderer.m3) // or -m2
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
