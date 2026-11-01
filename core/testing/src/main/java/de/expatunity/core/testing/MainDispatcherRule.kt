@@ -1,4 +1,4 @@
-package de.expatunity.calculator
+package de.expatunity.core.testing
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestDispatcher

@@ -2,14 +2,11 @@ package de.expatunity.calculator
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import de.expatunity.core.domain.ComplexDetail
-import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.IOException
 
 
 class CalculatorViewModelTest {

@@ -4,6 +4,8 @@ import app.cash.turbine.test
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
 import de.expatunity.core.domain.LocaleProvider
+import de.expatunity.core.testing.FakeComplexRepository
+import de.expatunity.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import org.junit.Assert.assertTrue

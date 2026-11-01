@@ -4,6 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.testing.FakeComplexRepository
+import de.expatunity.core.testing.FakeLocaleProvider
+import de.expatunity.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -15,7 +18,11 @@ class ComplexViewModelTest {
     @get:Rule
     val main = MainDispatcherRule()
     private val repo = FakeComplexRepository()
-    private fun vm() = ComplexViewModel(SavedStateHandle(mapOf("id" to "42")), repo)
+
+    private val localeProvider: FakeLocaleProvider = FakeLocaleProvider().apply { locale = "de" }
+
+    private fun vm() = ComplexViewModel(SavedStateHandle(mapOf("id" to "42")), repo,
+        localeProvider)
 
     @Test
     fun `success shows content`() = runTest {

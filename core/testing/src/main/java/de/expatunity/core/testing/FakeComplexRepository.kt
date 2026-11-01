@@ -1,4 +1,4 @@
-package de.expatunity.feature.catalog
+package de.expatunity.core.testing
 
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
@@ -8,7 +8,8 @@ import de.expatunity.core.domain.ListingStatus
 class FakeComplexRepository: ComplexRepository {
     
     var listOfSummary: List<ComplexSummary> = emptyList()
-    
+    var detail: ComplexDetail? = null
+
     var error: Throwable? = null
     
     override suspend fun getComplexes(locale: String, page: Int): List<ComplexSummary> {
@@ -20,18 +21,9 @@ class FakeComplexRepository: ComplexRepository {
         return listOfSummary
     }
 
-    override suspend fun getComplex(id: String, locale: String) = detail1()
-
-    private fun detail1(): ComplexDetail = ComplexDetail(
-            id = "id",
-            name = "name",
-            city = "city",
-            address = "address",
-            status = ListingStatus.UNKNOWN,
-            description = "description",
-            images = emptyList(),
-            apartments = emptyList(),
-            fallbackUsed = false
-        )
+    override suspend fun getComplex(id: String, locale: String): ComplexDetail {
+        error?.let { throw it }
+        return detail!!
+    }
 
 }
