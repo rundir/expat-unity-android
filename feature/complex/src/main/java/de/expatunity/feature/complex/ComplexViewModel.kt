@@ -4,15 +4,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
+import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.LocaleProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
-import kotlinx.coroutines.CancellationException
 
 @Serializable
 data class ComplexDestination(val id: String)
@@ -20,7 +21,7 @@ data class ComplexDestination(val id: String)
 sealed interface ComplexUiState {
     data object Loading : ComplexUiState
     data class Content(val complex: ComplexDetail) : ComplexUiState
-    data class Error(val message: String?) : ComplexUiState
+    data class Error(val type: ErrorType) : ComplexUiState
 }
 
 @HiltViewModel
@@ -40,8 +41,10 @@ class ComplexViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = try {
                 ComplexUiState.Content(repository.getComplex(id, localeProvider.apiLocale()))
-            } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { ComplexUiState.Error(e.message) }
-        }
+            } catch (e: AppException) {
+                ComplexUiState.Error(e.type)
+            } catch (e: Exception) {
+                ComplexUiState.Error(ErrorType.Unknown)
+            }        }
     }
 }

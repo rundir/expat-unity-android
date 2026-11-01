@@ -23,8 +23,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://localhost:1337/api/mobile/v1/\"")
+        }
         release {
             optimization {
+                buildConfigField("String", "BASE_URL", "\"https://www.expat-unity.de/cms/\"")
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
@@ -36,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

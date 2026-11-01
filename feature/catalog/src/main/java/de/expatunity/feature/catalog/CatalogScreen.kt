@@ -34,7 +34,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import de.expatunity.app.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.ComplexSummary
+import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.ui.ErrorState
+import de.expatunity.core.ui.ErrorTypeProvider
 import de.expatunity.core.ui.LocalePreviews
 
 @Composable
@@ -63,20 +66,12 @@ fun CatalogScreen(
     onOpenComplex: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier) {
+    Box(modifier.fillMaxSize()) {
         when (state) {
-            CatalogUiState.Loading -> Box(
-                Modifier.fillMaxSize(),
-                Alignment.Center
-            ) { CircularProgressIndicator() }
+            CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
 
-            is CatalogUiState.Error -> Column(
-                Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(state.message ?: stringResource(R.string.error_unknown))
-                Button(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
-            }
+            is CatalogUiState.Error ->
+                ErrorState(state.type, onRetry)
 
             is CatalogUiState.Content ->
                 PullToRefreshBox(
@@ -85,20 +80,22 @@ fun CatalogScreen(
                 ) {
                     if (state.items.isEmpty()) {
                         Box(
-                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                            Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
                             Alignment.Center,
                         ) { Text(stringResource(R.string.catalog_empty)) }
                     } else LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            items(state.items, key = { it.id }) {
-                                ComplexCard(
-                                    it,
-                                    onClick = { onOpenComplex(it.id) })
-                            }
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(state.items, key = { it.id }) {
+                            ComplexCard(
+                                it,
+                                onClick = { onOpenComplex(it.id) })
                         }
+                    }
                 }
         }
     }
@@ -121,7 +118,11 @@ private fun ComplexCard(item: ComplexSummary, onClick: () -> Unit) {
                 item.priceFrom?.let { stringResource(R.string.price_from, it) }
                     ?: stringResource(R.string.price_on_request)
             )
-            val units = pluralStringResource(R.plurals.catalog_units_available, item.unitsAvailable, item.unitsAvailable)
+            val units = pluralStringResource(
+                R.plurals.catalog_units_available,
+                item.unitsAvailable,
+                item.unitsAvailable
+            )
             Text(
                 stringResource(
                     R.string.catalog_status_units,
@@ -180,3 +181,15 @@ private fun UnitsPreview(
         Text(pluralStringResource(R.plurals.catalog_units_available, count, count))
     }
 }
+
+@LocalePreviews
+@Composable
+private fun CatalogError(
+    @PreviewParameter(ErrorTypeProvider::class) type: ErrorType
+) = CatalogScreen(
+    CatalogUiState.Error(type),
+    onRetry = {},
+    onOpenComplex = {},
+    refreshing = false,
+    onRefresh = {}
+)

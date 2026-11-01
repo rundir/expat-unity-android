@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_retry">Повторити</string>
     <string name="catalog_empty">Поки немає обʼєктів</string>
     <string name="price_on_request">Ціна за запитом</string>
     <string name="price_from">від %1$,.0f €</string>

@@ -1,11 +1,13 @@
 package de.expatunity.core.network
 
 import de.expatunity.core.domain.Apartment
+import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 private fun String.toStatus() = runCatching { ListingStatus.valueOf(this) }.getOrDefault(ListingStatus.UNKNOWN)
 
@@ -26,6 +28,15 @@ fun ComplexDetailDto.toDomain() = ComplexDetail(
 )
 
 class NetworkComplexRepository @Inject constructor(private val api: MobileApi) : ComplexRepository {
-    override suspend fun getComplexes(locale: String, page: Int) = api.complexes(locale, page).items.map { it.toDomain() }
-    override suspend fun getComplex(id: String, locale: String) = api.complex(id, locale).toDomain()
+    override suspend fun getComplexes(locale: String, page: Int) = try {
+        api.complexes(locale, page).items.map { it.toDomain() }
+    } catch (e: CancellationException) { throw e
+    } catch (e: Exception) { throw AppException(e.toErrorType())
+    }
+
+    override suspend fun getComplex(id: String, locale: String) = try {
+        api.complex(id, locale).toDomain()
+    } catch (e: CancellationException) { throw e
+    } catch (e: Exception) { throw AppException(e.toErrorType())
+    }
 }

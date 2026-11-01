@@ -9,11 +9,6 @@ android {
     namespace = "de.expatunity.core.network"
     compileSdk = 36
     defaultConfig { minSdk = 26 }
-    buildFeatures { buildConfig = true }
-    buildTypes {
-        debug { buildConfigField("String", "BASE_URL", "\"http://localhost:1337/api/mobile/v1/\"") }
-        release { buildConfigField("String", "BASE_URL", "\"https://www.expat-unity.de/cms/api/mobile/v1/\"") }
-    }
 }
 dependencies {
     api(project(":core:domain"))

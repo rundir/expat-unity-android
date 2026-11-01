@@ -27,8 +27,8 @@ object NetworkModule {
         .build()
 
     @Provides @Singleton
-    fun api(json: Json, client: OkHttpClient): MobileApi = Retrofit.Builder()
-        .baseUrl(BuildConfig.BASE_URL)
+    fun api(json: Json, client: OkHttpClient, @BaseUrl baseUrl: String): MobileApi = Retrofit.Builder()
+        .baseUrl(baseUrl)
         .client(client)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()

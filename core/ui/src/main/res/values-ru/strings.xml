@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_retry">Повторить</string>
+    <string name="error_network">Проблемы с сетью</string>
+    <string name="error_server">Сервер недоступен</string>
+    <string name="error_unknown">Что-то пошло не так</string>
+</resources>
