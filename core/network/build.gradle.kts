@@ -1,4 +1,3 @@
-// core/network/build.gradle.kts
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
@@ -11,7 +10,7 @@ android {
     defaultConfig { minSdk = 26 }
 }
 dependencies {
-    api(project(":core:domain"))
+    implementation(project(":core:database"))
     implementation(project(":core:domain"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

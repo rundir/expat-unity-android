@@ -33,49 +33,47 @@ class CatalogViewModel @Inject constructor(
     private val localeProvider: LocaleProvider
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<CatalogUiState>(CatalogUiState.Loading)
+    private val locale = localeProvider.apiLocale()
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing = _refreshing.asStateFlow()
+    private val _error = MutableStateFlow<ErrorType?>(null)
+
     private val _query = MutableStateFlow("")
 
     val query = _query.asStateFlow()
 
-    init { load() }
-
-    fun load() {
-        _state.value = CatalogUiState.Loading
-        viewModelScope.launch {
-            _state.value = try {
-                CatalogUiState.Content(repository.getComplexes(localeProvider.apiLocale()))
-            } catch (e: AppException) {
-                CatalogUiState.Error(e.type)
-            } catch (e: Exception) {
-                CatalogUiState.Error(ErrorType.Unknown)
-            }
+    @OptIn(FlowPreview::class)
+    val uiState = combine(
+        repository.observeComplexes(locale),
+        _error,
+        _query.debounce { if (it.isEmpty()) 0 else 300 },
+    ) { items, error, q ->
+        when {
+            items.isNotEmpty() -> CatalogUiState.Content(items.filterBy(q))
+            error != null -> CatalogUiState.Error(error)
+            _refreshing.value -> CatalogUiState.Loading
+            else -> CatalogUiState.Content(emptyList())
         }
-    }
-    private val _refreshing = MutableStateFlow(false)
-    val refreshing = _refreshing.asStateFlow()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CatalogUiState.Loading)
+
+    init { refresh() }
 
     fun refresh() {
         viewModelScope.launch {
             _refreshing.value = true
+            _error.value = null
             try {
-                _state.value = CatalogUiState.Content(repository.getComplexes(localeProvider.apiLocale()))
-            } catch (e: CancellationException) { throw e }
-            catch (e: Exception) {  }
-            finally { _refreshing.value = false }
+                repository.refreshComplexes(locale)
+            } catch (e: CancellationException) { throw e
+            } catch (e: AppException) { _error.value = e.type
+            } catch (e: Exception) { _error.value = ErrorType.Unknown
+            } finally { _refreshing.value = false }
         }
     }
 
     fun onQueryChange(q: String) { _query.value = q }
 
-    @OptIn(FlowPreview::class)
-    val uiState = combine(_state, _query.debounce(300.milliseconds)) { state, q ->
-        if (state is CatalogUiState.Content && q.isNotBlank())
-            state.copy(items = state.items.filter {
-                it.name.contains(q, ignoreCase = true) ||
-                        (it.city?.contains(q, ignoreCase = true) == true)
-            })
-        else state
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CatalogUiState.Loading)
+    private fun List<ComplexSummary>.filterBy(q: String) =
+        if (q.isBlank()) this else filter { it.name.contains(q, ignoreCase = true) }
 
 }

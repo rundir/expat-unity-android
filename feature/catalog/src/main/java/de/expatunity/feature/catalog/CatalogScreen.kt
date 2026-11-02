@@ -57,7 +57,7 @@ fun CatalogRoute(
     CatalogScreen(
         state, refreshing, query,
         onQueryChange = viewModel::onQueryChange,
-        onRetry = viewModel::load,
+        onRetry = viewModel::refresh,
         onRefresh = viewModel::refresh,
         onOpenComplex = onOpenComplex,
         modifier = modifier,
