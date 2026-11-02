@@ -12,10 +12,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -46,14 +51,16 @@ fun CatalogRoute(
     onOpenComplex: (String) -> Unit,
     modifier: Modifier,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle<CatalogUiState>()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     CatalogScreen(
-        state, refreshing,
+        state, refreshing, query,
+        onQueryChange = viewModel::onQueryChange,
         onRetry = viewModel::load,
         onRefresh = viewModel::refresh,
         onOpenComplex = onOpenComplex,
-        modifier,
+        modifier = modifier,
     )
 }
 
@@ -61,9 +68,11 @@ fun CatalogRoute(
 fun CatalogScreen(
     state: CatalogUiState,
     refreshing: Boolean,
+    query: String,
     onRetry: () -> Unit,
     onRefresh: () -> Unit,
     onOpenComplex: (String) -> Unit,
+    onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize()) {
@@ -73,7 +82,23 @@ fun CatalogScreen(
             is CatalogUiState.Error ->
                 ErrorState(state.type, onRetry)
 
-            is CatalogUiState.Content ->
+            is CatalogUiState.Content -> Column(Modifier.fillMaxSize()) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text(stringResource(R.string.catalog_search_hint)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (query.isNotEmpty()) IconButton(onClick = { onQueryChange("") }) {
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cd_clear_search))
+                        }
+                    },
+                    singleLine = true,
+                )
+
                 PullToRefreshBox(
                     isRefreshing = refreshing,
                     onRefresh = onRefresh,
@@ -84,7 +109,10 @@ fun CatalogScreen(
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState()),
                             Alignment.Center,
-                        ) { Text(stringResource(R.string.catalog_empty)) }
+                        ) {         Text(
+                            if (query.isBlank()) stringResource(R.string.catalog_empty)
+                            else stringResource(R.string.catalog_no_results, query)
+                        ) }
                     } else LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -97,6 +125,7 @@ fun CatalogScreen(
                         }
                     }
                 }
+            }
         }
     }
 }
@@ -162,10 +191,12 @@ private fun CatalogPreview() = CatalogScreen(
             )
         )
     ),
-    onRetry = {},
-    onOpenComplex = {},
     refreshing = false,
-    onRefresh = {}
+    "",
+    onRetry = {},
+    onRefresh = {},
+    onQueryChange = {},
+    onOpenComplex = {}
 )
 
 class UnitCountProvider : PreviewParameterProvider<Int> {
@@ -188,8 +219,10 @@ private fun CatalogError(
     @PreviewParameter(ErrorTypeProvider::class) type: ErrorType
 ) = CatalogScreen(
     CatalogUiState.Error(type),
-    onRetry = {},
-    onOpenComplex = {},
     refreshing = false,
-    onRefresh = {}
+    "",
+    onRetry = {},
+    onRefresh = {},
+    onQueryChange = {},
+    onOpenComplex = {}
 )

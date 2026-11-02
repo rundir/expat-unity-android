@@ -9,6 +9,9 @@
     <string name="status_reserved">Зарезервирован</string>
     <string name="status_sold">Продан</string>
     <string name="status_unknown">Неизвестно</string>
+    <string name="catalog_search_hint">Поисковый запрос</string>
+    <string name="cd_clear_search">Очистить</string>
+    <string name="catalog_no_results">Ничего не найдено</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d квартира свободна</item>
         <item quantity="few">%d квартиры свободны</item>

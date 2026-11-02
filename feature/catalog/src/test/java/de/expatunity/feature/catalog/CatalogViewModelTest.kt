@@ -32,14 +32,14 @@ class CatalogViewModelTest {
     @Test
     fun `success shows content`() = runTest {
         repo.listOfSummary = sampleDetail()
-        vm().state.test {
+        vm().uiState.test {
             assertTrue(awaitItem() is CatalogUiState.Content)
         }
     }
 
     @Test fun `error shows error state`() = runTest {
         repo.error = IOException("test")
-        vm().state.test {
+        vm().uiState.test {
             assertTrue(awaitItem() is CatalogUiState.Error)
         }
     }

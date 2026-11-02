@@ -9,6 +9,9 @@
     <string name="status_reserved">Reserviert</string>
     <string name="status_sold">Verkauft</string>
     <string name="status_unknown">Unbekannt</string>
+    <string name="catalog_search_hint">Suchbegriff</string>
+    <string name="cd_clear_search">Löschen</string>
+    <string name="catalog_no_results">Keine Treffer</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d Wohnung verfügbar</item>
         <item quantity="other">%d Wohnungen verfügbar</item>

@@ -9,6 +9,9 @@
     <string name="status_reserved">Reserved</string>
     <string name="status_sold">Sold</string>
     <string name="status_unknown">Unknown</string>
+    <string name="catalog_search_hint">Search query</string>
+    <string name="cd_clear_search">Clear</string>
+    <string name="catalog_no_results">Search is empty</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d unit available</item>
         <item quantity="other">%d units available</item>
