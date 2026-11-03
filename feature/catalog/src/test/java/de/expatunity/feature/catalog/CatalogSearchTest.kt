@@ -24,7 +24,7 @@ class CatalogSearchTest {
 
     @Test
     fun `query filters items by name`() = runTest {
-        repo.listOfSummary = listOf(
+        repo.complexes.value = listOf(
             sampleSummary(id = "1", name = "Isar Park"),
             sampleSummary(id = "2", name = "Berg Residenz"),
         )
@@ -46,7 +46,7 @@ class CatalogSearchTest {
 
     @Test
     fun `blank query shows all items`() = runTest {
-        repo.listOfSummary = listOf(
+        repo.complexes.value = listOf(
             sampleSummary(id = "1", name = "Isar Park"),
             sampleSummary(id = "2", name = "Berg Residenz"),
         )

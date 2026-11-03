@@ -9,12 +9,14 @@ import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.LocaleProvider
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,11 +39,10 @@ class CatalogViewModel @Inject constructor(
     private val _refreshing = MutableStateFlow(false)
     val refreshing = _refreshing.asStateFlow()
     private val _error = MutableStateFlow<ErrorType?>(null)
-
     private val _query = MutableStateFlow("")
-
     val query = _query.asStateFlow()
-
+    private val _events = Channel<CatalogEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
     @OptIn(FlowPreview::class)
     val uiState = combine(
         repository.observeComplexes(locale),
@@ -65,8 +66,12 @@ class CatalogViewModel @Inject constructor(
             try {
                 repository.refreshComplexes(locale)
             } catch (e: CancellationException) { throw e
-            } catch (e: AppException) { _error.value = e.type
-            } catch (e: Exception) { _error.value = ErrorType.Unknown
+            } catch (e: AppException) {
+                if (uiState.value is CatalogUiState.Content) _events.send(CatalogEvent.ShowError(e.type))
+                else _error.value = e.type
+            } catch (e: Exception) {
+                if (uiState.value is CatalogUiState.Content) _events.send(CatalogEvent.ShowError(ErrorType.Unknown))
+                else _error.value = ErrorType.Unknown
             } finally { _refreshing.value = false }
         }
     }
@@ -75,5 +80,7 @@ class CatalogViewModel @Inject constructor(
 
     private fun List<ComplexSummary>.filterBy(q: String) =
         if (q.isBlank()) this else filter { it.name.contains(q, ignoreCase = true) }
+
+    sealed interface CatalogEvent { data class ShowError(val type: ErrorType) : CatalogEvent }
 
 }

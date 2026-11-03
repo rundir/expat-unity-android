@@ -1,13 +1,19 @@
 package de.expatunity.feature.catalog
 
 import app.cash.turbine.test
+import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexSummary
+import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
 import de.expatunity.core.domain.LocaleProvider
 import de.expatunity.core.testing.FakeComplexRepository
 import de.expatunity.core.testing.MainDispatcherRule
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +37,7 @@ class CatalogViewModelTest {
 
     @Test
     fun `success shows content`() = runTest {
-        repo.listOfSummary = sampleDetail()
+        repo.complexes.value = sampleDetail()
         vm().uiState.test {
             assertTrue(awaitItem() is CatalogUiState.Content)
         }
@@ -58,6 +64,39 @@ class CatalogViewModelTest {
             "coverImageUrl",
             7
         )
+    }
+
+    @Test
+    fun `content plus error emits ShowError and keeps content`() = runTest {
+        repo.complexes.value = listOf(complexSummary())
+        val vm = vm()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            vm.uiState.collect {}
+        }
+        advanceUntilIdle() // init-refresh прошёл, на экране Content
+        repo.error = AppException(ErrorType.Network)
+        vm.events.test {
+            vm.refresh()
+            assertEquals(CatalogViewModel.CatalogEvent.ShowError(ErrorType.Network), awaitItem())
+        }
+        assertTrue(vm.uiState.value is CatalogUiState.Content)
+    }
+
+    @Test
+    fun `empty plus error shows Error state`() = runTest {
+        repo.error = AppException(ErrorType.Network)
+        val vm = vm()
+
+        vm.uiState.test {
+            assertEquals(CatalogUiState.Error(ErrorType.Network), expectMostRecentItem())
+        }
+    }
+
+    @Test
+    fun `refresh is called once on init`() = runTest {
+        vm()
+        advanceUntilIdle()
+        assertEquals(1, repo.refreshCalls)
     }
 
 }

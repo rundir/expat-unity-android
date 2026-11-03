@@ -21,10 +21,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -51,11 +57,23 @@ fun CatalogRoute(
     onOpenComplex: (String) -> Unit,
     modifier: Modifier,
 ) {
+
+    val snackbar = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val offlineMessage by rememberUpdatedState(stringResource(R.string.error_offline_cached))
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is CatalogViewModel.CatalogEvent.ShowError -> snackbar.showSnackbar(offlineMessage)
+            }
+        }
+    }
+
     CatalogScreen(
         state, refreshing, query,
+        snackbarHostState = snackbar,
         onQueryChange = viewModel::onQueryChange,
         onRetry = viewModel::refresh,
         onRefresh = viewModel::refresh,
@@ -74,54 +92,66 @@ fun CatalogScreen(
     onOpenComplex: (String) -> Unit,
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    Box(modifier.fillMaxSize()) {
-        when (state) {
-            CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+    Scaffold (
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
 
-            is CatalogUiState.Error ->
-                ErrorState(state.type, onRetry)
+        Box(modifier.fillMaxSize().padding(padding)) {
+            when (state) {
+                CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
 
-            is CatalogUiState.Content -> Column(Modifier.fillMaxSize()) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    placeholder = { Text(stringResource(R.string.catalog_search_hint)) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    trailingIcon = {
-                        if (query.isNotEmpty()) IconButton(onClick = { onQueryChange("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cd_clear_search))
-                        }
-                    },
-                    singleLine = true,
-                )
+                is CatalogUiState.Error ->
+                    ErrorState(state.type, onRetry)
 
-                PullToRefreshBox(
-                    isRefreshing = refreshing,
-                    onRefresh = onRefresh,
-                ) {
-                    if (state.items.isEmpty()) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState()),
-                            Alignment.Center,
-                        ) {         Text(
-                            if (query.isBlank()) stringResource(R.string.catalog_empty)
-                            else stringResource(R.string.catalog_no_results, query)
-                        ) }
-                    } else LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxSize(),
+                is CatalogUiState.Content -> Column(Modifier.fillMaxSize()) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = onQueryChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        placeholder = { Text(stringResource(R.string.catalog_search_hint)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (query.isNotEmpty()) IconButton(onClick = { onQueryChange("") }) {
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.cd_clear_search)
+                                )
+                            }
+                        },
+                        singleLine = true,
+                    )
+
+                    PullToRefreshBox(
+                        isRefreshing = refreshing,
+                        onRefresh = onRefresh,
                     ) {
-                        items(state.items, key = { it.id }) {
-                            ComplexCard(
-                                it,
-                                onClick = { onOpenComplex(it.id) })
+                        if (state.items.isEmpty()) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                                Alignment.Center,
+                            ) {
+                                Text(
+                                    if (query.isBlank()) stringResource(R.string.catalog_empty)
+                                    else stringResource(R.string.catalog_no_results, query)
+                                )
+                            }
+                        } else LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            items(state.items, key = { it.id }) {
+                                ComplexCard(
+                                    it,
+                                    onClick = { onOpenComplex(it.id) })
+                            }
                         }
                     }
                 }
@@ -177,27 +207,32 @@ private fun ListingStatus.label(): String = stringResource(
 @Preview
 @LocalePreviews
 @Composable
-private fun CatalogPreview() = CatalogScreen(
-    CatalogUiState.Content(
-        listOf(
-            ComplexSummary(
-                "1",
-                "Wohnpark Am See",
-                "Leipzig",
-                ListingStatus.ACTIVE,
-                249000.0,
-                null,
-                3
-            )
+private fun CatalogPreview() {
+    ExpatUnityTheme {
+        CatalogScreen(
+
+            CatalogUiState.Content(
+                listOf(
+                    ComplexSummary(
+                        "1",
+                        "Wohnpark Am See",
+                        "Leipzig",
+                        ListingStatus.ACTIVE,
+                        249000.0,
+                        null,
+                        3
+                    )
+                )
+            ),
+            refreshing = false,
+            "",
+            onRetry = {},
+            onRefresh = {},
+            onOpenComplex = {},
+            onQueryChange = {},
         )
-    ),
-    refreshing = false,
-    "",
-    onRetry = {},
-    onRefresh = {},
-    onQueryChange = {},
-    onOpenComplex = {}
-)
+    }
+}
 
 class UnitCountProvider : PreviewParameterProvider<Int> {
     override val values = sequenceOf(1, 3, 5, 21)
@@ -223,6 +258,6 @@ private fun CatalogError(
     "",
     onRetry = {},
     onRefresh = {},
+    onOpenComplex = {},
     onQueryChange = {},
-    onOpenComplex = {}
 )
