@@ -13,4 +13,5 @@
     <string name="status_reserved">Reserved</string>
     <string name="status_sold">Sold</string>
     <string name="status_unknown">Unknown</string>
+    <string name="error_cached_data">Could not update. Showing saved data</string>
 </resources>

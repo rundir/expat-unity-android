@@ -17,11 +17,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,7 +51,24 @@ fun ComplexRoute(
     onCalculate: (Apartment) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ComplexScreen(state, onBack, onRetry = viewModel::load, onCalculate)
+    val error by viewModel.refreshError.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val message = stringResource(R.string.error_cached_data)
+    val hasContent = state is ComplexUiState.Content
+
+    LaunchedEffect(hasContent, error, message) {
+        if (hasContent && error != null) {
+            snackbar.showSnackbar(message)
+        }
+    }
+
+    ComplexScreen(
+        state = state,
+        onBack = onBack,
+        onRetry = viewModel::load,
+        onCalculate = onCalculate,
+        snackbarHostState = snackbar,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,24 +78,35 @@ fun ComplexScreen(
     onBack: () -> Unit,
     onRetry: () -> Unit,
     onCalculate: (Apartment) -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text((state as? ComplexUiState.Content)?.complex?.name ?: "") },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.cd_navigate_back),
-                    )
-                }
-            },
-        )
-    }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text((state as? ComplexUiState.Content)?.complex?.name ?: "") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_navigate_back),
+                        )
+                    }
+                },
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { padding ->
         when (state) {
-            ComplexUiState.Loading -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) { CircularProgressIndicator() }
+            ComplexUiState.Loading -> Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                Alignment.Center
+            ) { CircularProgressIndicator() }
+
             is ComplexUiState.Error ->
                 ErrorState(state.type, onRetry)
+
             is ComplexUiState.Content -> LazyColumn(
                 contentPadding = padding,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -87,7 +119,7 @@ fun ComplexScreen(
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                         Markdown(
-                            content = c.description?:"",
+                            content = c.description ?: "",
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
@@ -143,7 +175,7 @@ private val previewComplex = ComplexDetail(
     name = "Mobile Test Landshut",
     address = "Landshut",
     description = "Neubau, 2026",
-    images = listOf("test","test1", "test2"),
+    images = listOf("test", "test1", "test2"),
     apartments = listOf(
         Apartment(
             id = "a1", title = "1", areaSqm = 54.0, price = 165000.0,
@@ -172,7 +204,8 @@ private fun ComplexScreenPreview() {
 
 @LocalePreviews
 @Composable
-private fun ComplexErrorPreview(    @PreviewParameter(ErrorTypeProvider::class) type: ErrorType
+private fun ComplexErrorPreview(
+    @PreviewParameter(ErrorTypeProvider::class) type: ErrorType
 ) {
     ExpatUnityTheme {
         ComplexScreen(ComplexUiState.Error(type), {}, {}, {})

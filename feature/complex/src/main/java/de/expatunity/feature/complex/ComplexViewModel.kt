@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class ComplexViewModel @Inject constructor(
     private val locale = localeProvider.apiLocale()
     private val error = MutableStateFlow<ErrorType?>(null)
     private var refreshJob: Job? = null
+    val refreshError = error.asStateFlow()
 
     val state: StateFlow<ComplexUiState> = combine(
         repository.observeComplex(id, locale),

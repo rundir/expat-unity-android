@@ -13,4 +13,5 @@
     <string name="status_reserved">Зарезервовано</string>
     <string name="status_sold">Продано</string>
     <string name="status_unknown">Невідомо</string>
+    <string name="error_cached_data">Не вдалося оновити. Показано збережені дані.</string>
 </resources>

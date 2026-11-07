@@ -13,4 +13,5 @@
     <string name="status_reserved">Reserviert</string>
     <string name="status_sold">Verkauft</string>
     <string name="status_unknown">Unbekannt</string>
+    <string name="error_cached_data">Aktualisierung fehlgeschlagen. Gespeicherte Daten werden angezeigt.</string>
 </resources>
