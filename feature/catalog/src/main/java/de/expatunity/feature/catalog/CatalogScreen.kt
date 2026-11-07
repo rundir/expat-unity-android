@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +15,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,10 +67,14 @@ fun CatalogRoute(
     val query by viewModel.query.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val offlineMessage by rememberUpdatedState(stringResource(R.string.error_offline_cached))
+    val cantAddFavMessage by rememberUpdatedState(stringResource(R.string.error_fav_failed))
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is CatalogViewModel.CatalogEvent.ShowError -> snackbar.showSnackbar(offlineMessage)
+                CatalogViewModel.CatalogEvent.FavoriteUpdateFailed -> snackbar.showSnackbar(
+                    cantAddFavMessage
+                )
             }
         }
     }
@@ -79,6 +87,7 @@ fun CatalogRoute(
         onRefresh = viewModel::refresh,
         onOpenComplex = onOpenComplex,
         modifier = modifier,
+        onToggleFavorite = viewModel::onToggleFavorite,
     )
 }
 
@@ -91,15 +100,18 @@ fun CatalogScreen(
     onRefresh: () -> Unit,
     onOpenComplex: (String) -> Unit,
     onQueryChange: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    Scaffold (
+    Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
 
-        Box(modifier.fillMaxSize().padding(padding)) {
+        Box(modifier
+            .fillMaxSize()
+            .padding(padding)) {
             when (state) {
                 CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
 
@@ -147,10 +159,13 @@ fun CatalogScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize(),
                         ) {
-                            items(state.items, key = { it.id }) {
+                            items(state.items, key = { it.id }) { item ->
                                 ComplexCard(
-                                    it,
-                                    onClick = { onOpenComplex(it.id) })
+                                    item = item,
+                                    isFavorite = item.id in state.favoriteIds,
+                                    onToggleFavorite = { onToggleFavorite(item.id) },
+                                    onClick = { onOpenComplex(item.id) },
+                                )
                             }
                         }
                     }
@@ -161,7 +176,12 @@ fun CatalogScreen(
 }
 
 @Composable
-private fun ComplexCard(item: ComplexSummary, onClick: () -> Unit) {
+private fun ComplexCard(
+    item: ComplexSummary,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onClick: () -> Unit,
+) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
             model = item.coverImageUrl, contentDescription = item.name,
@@ -171,7 +191,31 @@ private fun ComplexCard(item: ComplexSummary, onClick: () -> Unit) {
                 .height(180.dp),
         )
         Column(Modifier.padding(12.dp)) {
-            Text(item.name, style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                IconToggleButton(
+                    checked = isFavorite,
+                    onCheckedChange = { onToggleFavorite() },
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite
+                        else Icons.Outlined.FavoriteBorder,
+                        contentDescription = stringResource(
+                            if (isFavorite) R.string.action_remove_favorite
+                            else R.string.action_add_favorite
+                        ),
+                        tint = if (isFavorite) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             item.city?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             Text(
                 item.priceFrom?.let { stringResource(R.string.price_from, it) }
@@ -230,6 +274,7 @@ private fun CatalogPreview() {
             onRefresh = {},
             onOpenComplex = {},
             onQueryChange = {},
+            onToggleFavorite = {}
         )
     }
 }
@@ -260,4 +305,5 @@ private fun CatalogError(
     onRefresh = {},
     onOpenComplex = {},
     onQueryChange = {},
+    onToggleFavorite = {}
 )

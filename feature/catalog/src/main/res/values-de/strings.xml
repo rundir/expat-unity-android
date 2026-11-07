@@ -13,6 +13,9 @@
     <string name="cd_clear_search">Löschen</string>
     <string name="catalog_no_results">Keine Treffer</string>
     <string name="error_offline_cached">No connection. Showing saved data</string>
+    <string name="error_fav_failed">Не удалось изменить избранное</string>
+    <string name="action_add_favorite">Add to favorites</string>
+    <string name="action_remove_favorite">Remove from favorites</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d Wohnung verfügbar</item>
         <item quantity="other">%d Wohnungen verfügbar</item>

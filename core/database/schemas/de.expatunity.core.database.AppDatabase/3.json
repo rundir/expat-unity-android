@@ -1,0 +1,244 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "a33cb34f2998ed94a692bb0fbc969af8",
+    "entities": [
+      {
+        "tableName": "complexes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `locale` TEXT NOT NULL, `name` TEXT NOT NULL, `city` TEXT, `status` TEXT NOT NULL, `priceFrom` REAL, `coverImageUrl` TEXT, `unitsAvailable` INTEGER NOT NULL, PRIMARY KEY(`id`, `locale`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "priceFrom",
+            "columnName": "priceFrom",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "coverImageUrl",
+            "columnName": "coverImageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "unitsAvailable",
+            "columnName": "unitsAvailable",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "locale"
+          ]
+        }
+      },
+      {
+        "tableName": "complex_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `locale` TEXT NOT NULL, `name` TEXT NOT NULL, `city` TEXT, `address` TEXT, `status` TEXT NOT NULL, `description` TEXT, `fallbackUsed` INTEGER NOT NULL, PRIMARY KEY(`id`, `locale`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fallbackUsed",
+            "columnName": "fallbackUsed",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "locale"
+          ]
+        }
+      },
+      {
+        "tableName": "complex_images",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`complexId` TEXT NOT NULL, `locale` TEXT NOT NULL, `position` INTEGER NOT NULL, `url` TEXT NOT NULL, PRIMARY KEY(`complexId`, `locale`, `position`))",
+        "fields": [
+          {
+            "fieldPath": "complexId",
+            "columnName": "complexId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "complexId",
+            "locale",
+            "position"
+          ]
+        }
+      },
+      {
+        "tableName": "complex_apartments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`complexId` TEXT NOT NULL, `locale` TEXT NOT NULL, `id` TEXT NOT NULL, `title` TEXT NOT NULL, `areaSqm` REAL, `price` REAL, `expectedRentMonthly` REAL, `status` TEXT NOT NULL, PRIMARY KEY(`complexId`, `locale`, `id`))",
+        "fields": [
+          {
+            "fieldPath": "complexId",
+            "columnName": "complexId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaSqm",
+            "columnName": "areaSqm",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "expectedRentMonthly",
+            "columnName": "expectedRentMonthly",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "complexId",
+            "locale",
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "favorites",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`complexId` TEXT NOT NULL, PRIMARY KEY(`complexId`))",
+        "fields": [
+          {
+            "fieldPath": "complexId",
+            "columnName": "complexId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "complexId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a33cb34f2998ed94a692bb0fbc969af8')"
+    ]
+  }
+}
