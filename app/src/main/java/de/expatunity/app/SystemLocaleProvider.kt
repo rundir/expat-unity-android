@@ -5,8 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import de.expatunity.core.domain.LocaleProvider
-import jakarta.inject.Inject
 import java.util.Locale
+import javax.inject.Inject
 
 class SystemLocaleProvider @Inject constructor() : LocaleProvider {
     private val supported = setOf("ru", "de", "en", "uk")
