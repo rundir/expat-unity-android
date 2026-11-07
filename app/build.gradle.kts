@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":feature:catalog"))
     implementation(project(":feature:calculator"))
     implementation(project(":feature:complex"))
+    implementation(project(":core:data"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

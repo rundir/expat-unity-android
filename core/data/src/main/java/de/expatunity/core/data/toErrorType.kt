@@ -1,9 +1,10 @@
-package de.expatunity.core.network
+package de.expatunity.core.data
 
 import de.expatunity.core.domain.ErrorType
+import java.io.IOException
 
 fun Throwable.toErrorType(): ErrorType = when (this) {
-    is java.io.IOException -> ErrorType.Network
+    is IOException -> ErrorType.Network
     is retrofit2.HttpException -> ErrorType.Server
     else -> ErrorType.Unknown
 }

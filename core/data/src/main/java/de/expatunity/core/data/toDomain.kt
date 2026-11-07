@@ -1,4 +1,4 @@
-package de.expatunity.core.network
+package de.expatunity.core.data
 
 import de.expatunity.core.database.CachedComplexDetail
 import de.expatunity.core.domain.Apartment

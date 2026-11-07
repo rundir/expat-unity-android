@@ -6,13 +6,21 @@ plugins {
 }
 android {
     namespace = "de.expatunity.core.network"
-    compileSdk = 37
-    defaultConfig { minSdk = 26 }
+    compileSdk {
+        version = release(37)
+    }
+    defaultConfig {
+        minSdk = 26
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
 }
 dependencies {
     implementation(libs.room.runtime)
-    implementation(project(":core:database"))
-    implementation(project(":core:domain"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.retrofit)

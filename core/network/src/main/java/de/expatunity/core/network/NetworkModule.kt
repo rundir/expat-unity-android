@@ -1,11 +1,9 @@
 package de.expatunity.core.network
 
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import de.expatunity.core.domain.ComplexRepository
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -35,10 +33,3 @@ object NetworkModule {
         .create(MobileApi::class.java)
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-    @Binds
-    @Singleton
-    abstract fun bindRepo(impl: NetworkComplexRepository): ComplexRepository
-}

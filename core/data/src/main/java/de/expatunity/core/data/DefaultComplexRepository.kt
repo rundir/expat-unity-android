@@ -1,4 +1,4 @@
-package de.expatunity.core.network
+package de.expatunity.core.data
 
 import de.expatunity.core.database.ApartmentEntity
 import de.expatunity.core.database.AppDatabase
@@ -12,6 +12,10 @@ import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.network.ComplexDetailDto
+import de.expatunity.core.network.ComplexSummaryDto
+import de.expatunity.core.network.MobileApi
+import de.expatunity.core.network.UnitDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -38,7 +42,7 @@ fun ComplexDetailDto.toDomain() = ComplexDetail(
     fallbackUsed
 )
 
-class NetworkComplexRepository @Inject constructor(
+class DefaultComplexRepository @Inject constructor(
     private val api: MobileApi,
     private val dao: ComplexDao,
     private val database: AppDatabase,
