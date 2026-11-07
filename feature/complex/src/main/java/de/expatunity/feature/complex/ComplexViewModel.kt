@@ -9,11 +9,16 @@ import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.LocaleProvider
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @Serializable
 data class ComplexDestination(val id: String)
@@ -31,20 +36,42 @@ class ComplexViewModel @Inject constructor(
     private val localeProvider: LocaleProvider,
     ) : ViewModel() {
     private val id: String = checkNotNull(savedStateHandle["id"])
-    private val _state = MutableStateFlow<ComplexUiState>(ComplexUiState.Loading)
-    val state = _state.asStateFlow()
+    private val locale = localeProvider.apiLocale()
+    private val error = MutableStateFlow<ErrorType?>(null)
+    private var refreshJob: Job? = null
 
-    init { load() }
+    val state: StateFlow<ComplexUiState> = combine(
+        repository.observeComplex(id, locale),
+        error,
+    ) { cached, refreshError ->
+        when {
+            cached != null -> ComplexUiState.Content(cached)
+            refreshError != null -> ComplexUiState.Error(refreshError)
+            else -> ComplexUiState.Loading
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ComplexUiState.Loading,
+    )
+
+    init {
+        load()
+    }
 
     fun load() {
-        _state.value = ComplexUiState.Loading
-        viewModelScope.launch {
-            _state.value = try {
-                ComplexUiState.Content(repository.getComplex(id, localeProvider.apiLocale()))
+        if (refreshJob?.isActive == true) return
+
+        refreshJob = viewModelScope.launch {
+            error.value = null
+            try {
+                repository.refreshComplex(id, locale)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: AppException) {
-                ComplexUiState.Error(e.type)
+                error.value = e.type
             } catch (e: Exception) {
-                ComplexUiState.Error(ErrorType.Unknown)
-            }        }
-    }
-}
+                error.value = ErrorType.Unknown
+            }
+        }
+    }}

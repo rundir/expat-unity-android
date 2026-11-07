@@ -6,10 +6,11 @@ plugins {
 }
 android {
     namespace = "de.expatunity.core.network"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig { minSdk = 26 }
 }
 dependencies {
+    implementation(libs.room.runtime)
     implementation(project(":core:database"))
     implementation(project(":core:domain"))
     implementation(libs.hilt.android)

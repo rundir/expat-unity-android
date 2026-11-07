@@ -4,7 +4,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ComplexRepository {
     fun observeComplexes(locale: String): Flow<List<ComplexSummary>>
-    suspend fun getComplex(id: String, locale: String): ComplexDetail
+    fun observeComplex(id: String, locale: String): Flow<ComplexDetail?>
+    suspend fun refreshComplex(id: String, locale: String)
     suspend fun refreshComplexes(locale: String)
 }
 
