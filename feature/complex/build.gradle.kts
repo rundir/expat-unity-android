@@ -17,10 +17,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
 
     buildFeatures { compose = true }
 
@@ -28,7 +24,6 @@ android {
 
 dependencies {
     implementation(libs.multiplatform.markdown.renderer.m3) // or -m2
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
     implementation(project(":core:domain"))

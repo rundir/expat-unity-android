@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.m3.Markdown
-import de.expatunity.app.ui.theme.ExpatUnityTheme
+import de.expatunity.core.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ErrorType

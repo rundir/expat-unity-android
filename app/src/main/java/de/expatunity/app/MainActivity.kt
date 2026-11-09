@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
-import de.expatunity.app.ui.theme.ExpatUnityTheme
+import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

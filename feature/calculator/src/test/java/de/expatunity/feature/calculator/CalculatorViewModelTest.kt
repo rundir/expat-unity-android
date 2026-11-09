@@ -1,4 +1,4 @@
-package de.expatunity.calculator
+package de.expatunity.feature.calculator
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test

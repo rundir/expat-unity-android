@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.expatunity.calculator.CalculatorDestination
-import de.expatunity.calculator.CalculatorRoute
+import de.expatunity.feature.calculator.CalculatorDestination
+import de.expatunity.feature.calculator.CalculatorRoute
 import de.expatunity.feature.catalog.CatalogDestination
 import de.expatunity.feature.catalog.CatalogRoute
 import de.expatunity.feature.complex.ComplexDestination

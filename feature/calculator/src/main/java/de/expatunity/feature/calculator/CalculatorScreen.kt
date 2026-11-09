@@ -1,4 +1,4 @@
-package de.expatunity.calculator
+package de.expatunity.feature.calculator
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,7 +33,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.expatunity.core.domain.InvestmentResult
 import de.expatunity.core.domain.YearProjection
-import de.expatunity.feature.calculator.R
 
 @Composable
 fun CalculatorRoute(

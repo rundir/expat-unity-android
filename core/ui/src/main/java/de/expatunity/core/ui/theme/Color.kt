@@ -1,4 +1,4 @@
-package de.expatunity.app.ui.theme
+package de.expatunity.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package de.expatunity.calculator
+package de.expatunity.feature.calculator
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.InvestmentCalculator
 import de.expatunity.core.domain.InvestmentParams
 import de.expatunity.core.domain.InvestmentResult
-import de.expatunity.feature.calculator.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
