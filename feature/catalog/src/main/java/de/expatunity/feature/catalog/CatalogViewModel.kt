@@ -52,17 +52,35 @@ class CatalogViewModel @Inject constructor(
     private val _events = Channel<CatalogEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+    private data class CatalogFilters(
+        val query: String = "",
+        val favoritesOnly: Boolean = false,
+    )
+    private val _favoritesOnly = MutableStateFlow(false)
+    val favoritesOnly = _favoritesOnly.asStateFlow()
+
+    @OptIn(FlowPreview::class)
+    private val filters = combine(
+        _query.debounce { if (it.isEmpty()) 0 else 300 },
+        _favoritesOnly,
+    ) { query, favoritesOnly ->
+        CatalogFilters(query, favoritesOnly)
+    }
+
     @OptIn(FlowPreview::class)
     val uiState = combine(
         repository.observeComplexes(locale),
         _error,
-        _query.debounce { if (it.isEmpty()) 0 else 300 },
+        filters,
         _refreshing,
         favoritesRepository.observeFavoriteIds(),
-    ) { items, error, q, refreshing, favoriteIds ->
+    ) { items, error, filters, refreshing, favoriteIds ->
+        val visibleItems = items
+            .filterBy(filters.query)
+            .filter { !filters.favoritesOnly || it.id in favoriteIds }
         when {
             items.isNotEmpty() -> CatalogUiState.Content(
-                items = items.filterBy(q),
+                items = visibleItems,
                 favoriteIds = favoriteIds,
             )
             error != null -> CatalogUiState.Error(error)
@@ -129,6 +147,10 @@ class CatalogViewModel @Inject constructor(
         data class ShowError(val type: ErrorType) : CatalogEvent
 
         data object FavoriteUpdateFailed : CatalogEvent
+    }
+
+    fun onFavoritesOnlyChange(enabled: Boolean) {
+        _favoritesOnly.value = enabled
     }
 
 }

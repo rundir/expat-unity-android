@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -68,6 +69,9 @@ fun CatalogRoute(
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val offlineMessage by rememberUpdatedState(stringResource(R.string.error_offline_cached))
     val cantAddFavMessage by rememberUpdatedState(stringResource(R.string.error_fav_failed))
+    val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
+
+
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -88,6 +92,8 @@ fun CatalogRoute(
         onOpenComplex = onOpenComplex,
         modifier = modifier,
         onToggleFavorite = viewModel::onToggleFavorite,
+        favoritesOnly = favoritesOnly,
+        onFavoritesOnlyChange = viewModel::onFavoritesOnlyChange,
     )
 }
 
@@ -101,6 +107,8 @@ fun CatalogScreen(
     onOpenComplex: (String) -> Unit,
     onQueryChange: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
+    favoritesOnly: Boolean,
+    onFavoritesOnlyChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -109,9 +117,11 @@ fun CatalogScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
 
-        Box(modifier
-            .fillMaxSize()
-            .padding(padding)) {
+        Box(
+            modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             when (state) {
                 CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
 
@@ -138,6 +148,13 @@ fun CatalogScreen(
                         singleLine = true,
                     )
 
+                    FilterChip(
+                        selected = favoritesOnly,
+                        onClick = { onFavoritesOnlyChange(!favoritesOnly) },
+                        label = { Text(stringResource(R.string.catalog_favorites_only)) },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+
                     PullToRefreshBox(
                         isRefreshing = refreshing,
                         onRefresh = onRefresh,
@@ -150,10 +167,12 @@ fun CatalogScreen(
                                 Alignment.Center,
                             ) {
                                 Text(
-                                    if (query.isBlank()) stringResource(R.string.catalog_empty)
-                                    else stringResource(R.string.catalog_no_results, query)
-                                )
-                            }
+                                    when {
+                                        query.isNotBlank() -> stringResource(R.string.catalog_no_results, query)
+                                        favoritesOnly -> stringResource(R.string.catalog_no_favorites)
+                                        else -> stringResource(R.string.catalog_empty)
+                                    }
+                                )                            }
                         } else LazyColumn(
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -270,11 +289,13 @@ private fun CatalogPreview() {
             ),
             refreshing = false,
             "",
+            favoritesOnly = false,
             onRetry = {},
             onRefresh = {},
             onOpenComplex = {},
             onQueryChange = {},
-            onToggleFavorite = {}
+            onToggleFavorite = {},
+            onFavoritesOnlyChange = {}
         )
     }
 }
@@ -301,9 +322,11 @@ private fun CatalogError(
     CatalogUiState.Error(type),
     refreshing = false,
     "",
+    favoritesOnly = false,
     onRetry = {},
     onRefresh = {},
     onOpenComplex = {},
     onQueryChange = {},
-    onToggleFavorite = {}
+    onToggleFavorite = {},
+    onFavoritesOnlyChange = {},
 )

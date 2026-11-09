@@ -16,6 +16,8 @@
     <string name="error_fav_failed">Не удалось изменить избранное</string>
     <string name="action_add_favorite">Add to favorites</string>
     <string name="action_remove_favorite">Remove from favorites</string>
+    <string name="catalog_favorites_only">Nur Favoriten</string>
+    <string name="catalog_no_favorites">Noch keine Favoriten</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d Wohnung verfügbar</item>
         <item quantity="other">%d Wohnungen verfügbar</item>
