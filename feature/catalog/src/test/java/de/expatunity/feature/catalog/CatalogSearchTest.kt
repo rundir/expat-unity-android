@@ -2,7 +2,11 @@ package de.expatunity.feature.catalog
 
 import app.cash.turbine.test
 import de.expatunity.core.domain.LocaleProvider
-import de.expatunity.core.domain.ToggleFavoriteUseCase
+import de.expatunity.core.domain.usecase.ObserveCatalogUseCase
+import de.expatunity.core.domain.usecase.ObserveComplexesUseCase
+import de.expatunity.core.domain.usecase.ObserveFavoriteIdsUseCase
+import de.expatunity.core.domain.usecase.RefreshComplexesUseCase
+import de.expatunity.core.domain.usecase.ToggleFavoriteUseCase
 import de.expatunity.core.testing.FakeComplexRepository
 import de.expatunity.core.testing.FakeFavoritesRepository
 import de.expatunity.core.testing.MainDispatcherRule
@@ -24,13 +28,16 @@ class CatalogSearchTest {
     val main = MainDispatcherRule()
     private val complexRepository = FakeComplexRepository()
     private val favRepository = FakeFavoritesRepository()
-    private val locale = object : LocaleProvider { override fun apiLocale() = "de" }
+    private val localeProvider = object : LocaleProvider { override fun apiLocale() = "de" }
 
     private fun vm() = CatalogViewModel(
-        complexRepository,
-        locale,
-        favRepository,
-        ToggleFavoriteUseCase(favRepository)
+        observeCatalog = ObserveCatalogUseCase(
+            ObserveComplexesUseCase(complexRepository),
+            ObserveFavoriteIdsUseCase(favRepository),
+        ),
+        refreshComplexes = RefreshComplexesUseCase(complexRepository),
+        toggleFavorite = ToggleFavoriteUseCase(favRepository),
+        localeProvider = localeProvider,
     )
 
     @Test
@@ -151,5 +158,5 @@ class CatalogSearchTest {
             assertEquals(emptySet<String>(), state.favoriteIds)
         }
     }
-    
+
 }

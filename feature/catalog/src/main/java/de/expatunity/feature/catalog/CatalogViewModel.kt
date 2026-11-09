@@ -4,12 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.AppException
-import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ErrorType
-import de.expatunity.core.domain.FavoritesRepository
 import de.expatunity.core.domain.LocaleProvider
-import de.expatunity.core.domain.ToggleFavoriteUseCase
+import de.expatunity.core.domain.usecase.CatalogFilter
+import de.expatunity.core.domain.usecase.ObserveCatalogUseCase
+import de.expatunity.core.domain.usecase.RefreshComplexesUseCase
+import de.expatunity.core.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,10 +38,10 @@ sealed interface CatalogUiState {
 
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
-    private val repository: ComplexRepository,
-    private val localeProvider: LocaleProvider,
-    private val favoritesRepository: FavoritesRepository,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    observeCatalog: ObserveCatalogUseCase,
+    private val refreshComplexes: RefreshComplexesUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase,
+    localeProvider: LocaleProvider,
 ) : ViewModel() {
 
     private val locale = localeProvider.apiLocale()
@@ -52,10 +53,6 @@ class CatalogViewModel @Inject constructor(
     private val _events = Channel<CatalogEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
-    private data class CatalogFilters(
-        val query: String = "",
-        val favoritesOnly: Boolean = false,
-    )
     private val _favoritesOnly = MutableStateFlow(false)
     val favoritesOnly = _favoritesOnly.asStateFlow()
 
@@ -64,31 +61,19 @@ class CatalogViewModel @Inject constructor(
         _query.debounce { if (it.isEmpty()) 0 else 300 },
         _favoritesOnly,
     ) { query, favoritesOnly ->
-        CatalogFilters(query, favoritesOnly)
+        CatalogFilter(query, favoritesOnly)
     }
 
-    @OptIn(FlowPreview::class)
     val uiState = combine(
-        repository.observeComplexes(locale),
+        observeCatalog(locale, filters),
         _error,
-        filters,
         _refreshing,
-        favoritesRepository.observeFavoriteIds(),
-    ) { items, error, filters, refreshing, favoriteIds ->
-        val visibleItems = items
-            .filterBy(filters.query)
-            .filter { !filters.favoritesOnly || it.id in favoriteIds }
+    ) { catalog, error, refreshing ->
         when {
-            items.isNotEmpty() -> CatalogUiState.Content(
-                items = visibleItems,
-                favoriteIds = favoriteIds,
-            )
+            catalog.hasAnyComplexes -> CatalogUiState.Content(catalog.items, catalog.favoriteIds)
             error != null -> CatalogUiState.Error(error)
             refreshing -> CatalogUiState.Loading
-            else -> CatalogUiState.Content(
-                items = emptyList(),
-                favoriteIds = favoriteIds,
-            )
+            else -> CatalogUiState.Content(emptyList(), catalog.favoriteIds)
         }
     }.stateIn(
         viewModelScope,
@@ -105,7 +90,7 @@ class CatalogViewModel @Inject constructor(
             _refreshing.value = true
             _error.value = null
             try {
-                repository.refreshComplexes(locale)
+                refreshComplexes(locale)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: AppException) {
@@ -131,7 +116,7 @@ class CatalogViewModel @Inject constructor(
     fun onToggleFavorite(id: String) {
         viewModelScope.launch {
             try {
-                toggleFavoriteUseCase(id)
+                toggleFavorite(id)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

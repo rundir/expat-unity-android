@@ -6,9 +6,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexDetail
-import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.LocaleProvider
+import de.expatunity.core.domain.usecase.ObserveComplexUseCase
+import de.expatunity.core.domain.usecase.RefreshComplexUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,10 +33,11 @@ sealed interface ComplexUiState {
 
 @HiltViewModel
 class ComplexViewModel @Inject constructor(
+    observeComplex: ObserveComplexUseCase,
+    private val refreshComplex: RefreshComplexUseCase,
+    localeProvider: LocaleProvider,
     savedStateHandle: SavedStateHandle,
-    private val repository: ComplexRepository,
-    private val localeProvider: LocaleProvider,
-    ) : ViewModel() {
+) : ViewModel() {
     private val id: String = checkNotNull(savedStateHandle["id"])
     private val locale = localeProvider.apiLocale()
     private val error = MutableStateFlow<ErrorType?>(null)
@@ -43,7 +45,7 @@ class ComplexViewModel @Inject constructor(
     val refreshError = error.asStateFlow()
 
     val state: StateFlow<ComplexUiState> = combine(
-        repository.observeComplex(id, locale),
+        observeComplex(id, locale),
         error,
     ) { cached, refreshError ->
         when {
@@ -67,7 +69,7 @@ class ComplexViewModel @Inject constructor(
         refreshJob = viewModelScope.launch {
             error.value = null
             try {
-                repository.refreshComplex(id, locale)
+                refreshComplex(id, locale)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: AppException) {
@@ -76,4 +78,5 @@ class ComplexViewModel @Inject constructor(
                 error.value = ErrorType.Unknown
             }
         }
-    }}
+    }
+}

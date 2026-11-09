@@ -6,6 +6,8 @@ import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.domain.usecase.ObserveComplexUseCase
+import de.expatunity.core.domain.usecase.RefreshComplexUseCase
 import de.expatunity.core.testing.FakeComplexRepository
 import de.expatunity.core.testing.FakeLocaleProvider
 import de.expatunity.core.testing.MainDispatcherRule
@@ -23,8 +25,12 @@ class ComplexViewModelTest {
 
     private val localeProvider: FakeLocaleProvider = FakeLocaleProvider().apply { locale = "de" }
 
-    private fun vm() = ComplexViewModel(SavedStateHandle(mapOf("id" to "42")), repo,
-        localeProvider)
+    private fun vm() = ComplexViewModel(
+        observeComplex = ObserveComplexUseCase(repo),
+        refreshComplex = RefreshComplexUseCase(repo),
+        localeProvider,
+        SavedStateHandle(mapOf("id" to "42")),
+    )
 
     @Test
     fun `success shows content`() = runTest {
@@ -59,6 +65,7 @@ class ComplexViewModelTest {
         }
         assertEquals(1, repo.detailRefreshCalls)
     }
+
     private fun complexDetail() = ComplexDetail(
         id = "1",
         name = "Wohnpark Am See",
