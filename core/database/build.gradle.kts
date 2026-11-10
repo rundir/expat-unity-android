@@ -15,18 +15,25 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 room { schemaDirectory("$projectDir/schemas") }
 dependencies {
+    ksp(libs.room.compiler)
+    ksp(libs.hilt.compiler)
     implementation(project(":core:domain"))
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 }
