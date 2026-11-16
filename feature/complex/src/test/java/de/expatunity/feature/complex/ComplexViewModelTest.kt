@@ -7,8 +7,11 @@ import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
 import de.expatunity.core.domain.usecase.ObserveComplexUseCase
+import de.expatunity.core.domain.usecase.ObserveFavoriteIdsUseCase
 import de.expatunity.core.domain.usecase.RefreshComplexUseCase
+import de.expatunity.core.domain.usecase.ToggleFavoriteUseCase
 import de.expatunity.core.testing.FakeComplexRepository
+import de.expatunity.core.testing.FakeFavoritesRepository
 import de.expatunity.core.testing.FakeLocaleProvider
 import de.expatunity.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -22,12 +25,15 @@ class ComplexViewModelTest {
     @get:Rule
     val main = MainDispatcherRule()
     private val repo = FakeComplexRepository()
+    private val favRepository = FakeFavoritesRepository()
 
     private val localeProvider: FakeLocaleProvider = FakeLocaleProvider().apply { locale = "de" }
 
     private fun vm() = ComplexViewModel(
         observeComplex = ObserveComplexUseCase(repo),
         refreshComplex = RefreshComplexUseCase(repo),
+        observeFavoriteIds = ObserveFavoriteIdsUseCase(favRepository),
+        ToggleFavoriteUseCase(favRepository),
         localeProvider,
         SavedStateHandle(mapOf("id" to "42")),
     )

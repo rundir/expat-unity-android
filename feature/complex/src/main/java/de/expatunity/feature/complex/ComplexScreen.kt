@@ -10,10 +10,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -55,10 +59,18 @@ fun ComplexRoute(
     val snackbar = remember { SnackbarHostState() }
     val message = stringResource(R.string.error_cached_data)
     val hasContent = state is ComplexUiState.Content
+    val favError by rememberUpdatedState(stringResource(R.string.error_fav_failed))
 
     LaunchedEffect(hasContent, error, message) {
         if (hasContent && error != null) {
             snackbar.showSnackbar(message)
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                ComplexEvent.FavoriteUpdateFailed -> snackbar.showSnackbar(favError)
+            }
         }
     }
 
@@ -67,6 +79,7 @@ fun ComplexRoute(
         onBack = onBack,
         onRetry = viewModel::load,
         onCalculate = onCalculate,
+        onToggleFavorite = viewModel::onToggleFavorite,
         snackbarHostState = snackbar,
     )
 }
@@ -78,6 +91,7 @@ fun ComplexScreen(
     onBack: () -> Unit,
     onRetry: () -> Unit,
     onCalculate: (Apartment) -> Unit,
+    onToggleFavorite: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
@@ -90,6 +104,21 @@ fun ComplexScreen(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_navigate_back),
                         )
+                    }
+                },
+                actions = {
+                    if (state is ComplexUiState.Content) {
+                        IconToggleButton(
+                            checked = state.isFavorite,
+                            onCheckedChange = { onToggleFavorite() },
+                        ) {
+                            Icon(
+                                imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = stringResource(
+                                    if (state.isFavorite) R.string.action_remove_favorite else R.string.action_add_favorite
+                                ),
+                            )
+                        }
                     }
                 },
             )
@@ -197,7 +226,7 @@ private fun ComplexScreenPreview() {
     ExpatUnityTheme {
         ComplexScreen(
             state = ComplexUiState.Content(previewComplex),
-            onBack = {}, onRetry = {}, onCalculate = {},
+            onBack = {}, onRetry = {}, {}, {}
         )
     }
 }
@@ -208,6 +237,6 @@ private fun ComplexErrorPreview(
     @PreviewParameter(ErrorTypeProvider::class) type: ErrorType
 ) {
     ExpatUnityTheme {
-        ComplexScreen(ComplexUiState.Error(type), {}, {}, {})
+        ComplexScreen(ComplexUiState.Error(type), {}, {}, {}, {})
     }
 }
