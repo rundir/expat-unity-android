@@ -15,9 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -48,13 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import de.expatunity.core.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
 import de.expatunity.core.ui.ErrorState
 import de.expatunity.core.ui.ErrorTypeProvider
+import de.expatunity.core.ui.FavoriteButton
 import de.expatunity.core.ui.LocalePreviews
+import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @Composable
 fun CatalogRoute(
@@ -217,15 +216,11 @@ private fun ComplexCard(
                     checked = isFavorite,
                     onCheckedChange = { onToggleFavorite() },
                 ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite
-                        else Icons.Outlined.FavoriteBorder,
-                        contentDescription = stringResource(
-                            if (isFavorite) R.string.action_remove_favorite
-                            else R.string.action_add_favorite
-                        ),
-                        tint = if (isFavorite) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    FavoriteButton(
+                        isFavorite = isFavorite,
+                        onToggle = { onToggleFavorite() },
+                        addLabel = stringResource(R.string.action_add_favorite),
+                        removeLabel = stringResource(R.string.action_remove_favorite),
                     )
                 }
             }

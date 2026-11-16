@@ -10,13 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,15 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.m3.Markdown
-import de.expatunity.core.ui.theme.ExpatUnityTheme
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ErrorType
 import de.expatunity.core.domain.ListingStatus
 import de.expatunity.core.ui.ErrorState
 import de.expatunity.core.ui.ErrorTypeProvider
+import de.expatunity.core.ui.FavoriteButton
 import de.expatunity.core.ui.ImageGallery
 import de.expatunity.core.ui.LocalePreviews
+import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @Composable
 fun ComplexRoute(
@@ -108,17 +106,12 @@ fun ComplexScreen(
                 },
                 actions = {
                     if (state is ComplexUiState.Content) {
-                        IconToggleButton(
-                            checked = state.isFavorite,
-                            onCheckedChange = { onToggleFavorite() },
-                        ) {
-                            Icon(
-                                imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = stringResource(
-                                    if (state.isFavorite) R.string.action_remove_favorite else R.string.action_add_favorite
-                                ),
-                            )
-                        }
+                        FavoriteButton(
+                            isFavorite = state.isFavorite,
+                            onToggle = { onToggleFavorite() },
+                            addLabel = stringResource(R.string.action_add_favorite),
+                            removeLabel = stringResource(R.string.action_remove_favorite),
+                        )
                     }
                 },
             )
