@@ -60,7 +60,6 @@ import de.expatunity.core.ui.LocalePreviews
 fun CatalogRoute(
     viewModel: CatalogViewModel = hiltViewModel(),
     onOpenComplex: (String) -> Unit,
-    modifier: Modifier,
 ) {
 
     val snackbar = remember { SnackbarHostState() }
@@ -90,7 +89,6 @@ fun CatalogRoute(
         onRetry = viewModel::refresh,
         onRefresh = viewModel::refresh,
         onOpenComplex = onOpenComplex,
-        modifier = modifier,
         onToggleFavorite = viewModel::onToggleFavorite,
         favoritesOnly = favoritesOnly,
         onFavoritesOnlyChange = viewModel::onFavoritesOnlyChange,
@@ -109,18 +107,14 @@ fun CatalogScreen(
     onToggleFavorite: (String) -> Unit,
     favoritesOnly: Boolean,
     onFavoritesOnlyChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
-        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
 
         Box(
-            modifier
-                .fillMaxSize()
-                .padding(padding)
+            Modifier.padding(padding)
         ) {
             when (state) {
                 CatalogUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
