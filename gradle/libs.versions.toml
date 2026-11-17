@@ -68,6 +68,9 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectricver" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidtestcore" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive" }
+androidx-compose-material3-adaptive-layout = { group = "androidx.compose.material3.adaptive", name = "adaptive-layout" }
+androidx-compose-material3-adaptive-navigation = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

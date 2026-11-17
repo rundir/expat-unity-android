@@ -30,12 +30,12 @@ class ComplexViewModelTest {
     private val localeProvider: FakeLocaleProvider = FakeLocaleProvider().apply { locale = "de" }
 
     private fun vm() = ComplexViewModel(
+        id = "42",
         observeComplex = ObserveComplexUseCase(repo),
         refreshComplex = RefreshComplexUseCase(repo),
         observeFavoriteIds = ObserveFavoriteIdsUseCase(favRepository),
         ToggleFavoriteUseCase(favRepository),
         localeProvider,
-        SavedStateHandle(mapOf("id" to "42")),
     )
 
     @Test

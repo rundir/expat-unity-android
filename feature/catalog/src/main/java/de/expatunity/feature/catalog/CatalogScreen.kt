@@ -1,5 +1,6 @@
 package de.expatunity.feature.catalog
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -100,6 +101,7 @@ fun CatalogScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
+        modifier = Modifier.focusable(),
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
 

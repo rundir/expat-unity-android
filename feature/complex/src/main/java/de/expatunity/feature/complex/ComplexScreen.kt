@@ -25,7 +25,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -46,9 +45,13 @@ import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @Composable
 fun ComplexRoute(
-    viewModel: ComplexViewModel = hiltViewModel(),
+    complexId: String,
     onBack: () -> Unit,
     onCalculate: (Apartment) -> Unit,
+    viewModel: ComplexViewModel = hiltViewModel<ComplexViewModel, ComplexViewModel.Factory>(
+        key = complexId,
+    ) { factory -> factory.create(complexId) },
+    showBack: Boolean = true,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val error by viewModel.refreshError.collectAsStateWithLifecycle()
@@ -77,6 +80,7 @@ fun ComplexRoute(
         onCalculate = onCalculate,
         onToggleFavorite = viewModel::onToggleFavorite,
         snackbarHostState = snackbar,
+        showBack = showBack
     )
 }
 
@@ -89,17 +93,20 @@ fun ComplexScreen(
     onCalculate: (Apartment) -> Unit,
     onToggleFavorite: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    showBack: Boolean = true,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text((state as? ComplexUiState.Content)?.complex?.name ?: "") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_navigate_back),
-                        )
+                    if (showBack) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.cd_navigate_back),
+                            )
+                        }
                     }
                 },
                 actions = {

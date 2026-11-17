@@ -1,8 +1,10 @@
 package de.expatunity.feature.complex
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.expatunity.core.domain.AppException
 import de.expatunity.core.domain.ComplexDetail
@@ -16,7 +18,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,12 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
-
-@Serializable
-data class ComplexDestination(val id: String)
 
 sealed interface ComplexUiState {
     data object Loading : ComplexUiState
@@ -44,16 +40,19 @@ sealed interface ComplexEvent {
     data object FavoriteUpdateFailed : ComplexEvent
 }
 
-@HiltViewModel
-class ComplexViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ComplexViewModel.Factory::class)
+class ComplexViewModel @AssistedInject constructor(
+    @Assisted private val id: String,
     observeComplex: ObserveComplexUseCase,
     private val refreshComplex: RefreshComplexUseCase,
     observeFavoriteIds: ObserveFavoriteIdsUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
     localeProvider: LocaleProvider,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val id: String = checkNotNull(savedStateHandle["id"])
+    @AssistedFactory
+    interface Factory {
+        fun create(id: String): ComplexViewModel
+    }
     private val locale = localeProvider.apiLocale()
     private val error = MutableStateFlow<ErrorType?>(null)
     private var refreshJob: Job? = null
