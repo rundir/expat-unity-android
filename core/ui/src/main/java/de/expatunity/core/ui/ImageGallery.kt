@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,13 +29,15 @@ fun ImageGallery(images: List<String>, modifier: Modifier = Modifier, sharedKeyI
     val pagerState = rememberPagerState { images.size }
     Box(modifier) {
         val isPreview = LocalInspectionMode.current
+        val placeholderColor = MaterialTheme.colorScheme.surfaceVariant
+
         HorizontalPager(state = pagerState) { page ->
             if (isPreview) {
                 Box(
                     Modifier
                         .fillMaxWidth()
                         .aspectRatio(16f / 10f)
-                        .background(Color.LightGray)
+                        .background(placeholderColor)
                 )
             } else {
                 AsyncImage(
@@ -44,13 +47,13 @@ fun ImageGallery(images: List<String>, modifier: Modifier = Modifier, sharedKeyI
                     modifier = Modifier
                         .then(
                             if (page == 0 && sharedKeyId != null)
-                                Modifier.sharedComplexImage(sharedKeyId, tag = "TAG-GALLERY")
+                                Modifier.sharedComplexImage(sharedKeyId)
                             else
                                 Modifier
                         )
                         .fillMaxWidth()
                         .aspectRatio(16f / 10f),
-                    placeholder = ColorPainter(Color.LightGray)
+                    placeholder = ColorPainter(placeholderColor)
                 )
             }
         }
