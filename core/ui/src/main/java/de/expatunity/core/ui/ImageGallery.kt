@@ -23,32 +23,48 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 
 @Composable
-fun ImageGallery(images: List<String>, modifier: Modifier = Modifier) {
+fun ImageGallery(images: List<String>, modifier: Modifier = Modifier, sharedKeyId: String? = null) {
     if (images.isEmpty()) return
     val pagerState = rememberPagerState { images.size }
     Box(modifier) {
         val isPreview = LocalInspectionMode.current
         HorizontalPager(state = pagerState) { page ->
             if (isPreview) {
-                Box(Modifier.fillMaxWidth().aspectRatio(16f / 10f).background(Color.LightGray))
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 10f)
+                        .background(Color.LightGray)
+                )
             } else {
                 AsyncImage(
                     model = images[page],
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 10f),
+                    modifier = Modifier
+                        .then(
+                            if (page == 0 && sharedKeyId != null)
+                                Modifier.sharedComplexImage(sharedKeyId, tag = "TAG-GALLERY")
+                            else
+                                Modifier
+                        )
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 10f),
                     placeholder = ColorPainter(Color.LightGray)
                 )
             }
         }
         Row(
-            Modifier.align(Alignment.BottomCenter).padding(8.dp),
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             repeat(images.size) { i ->
                 val selected = pagerState.currentPage == i
                 Box(
-                    Modifier.size(if (selected) 8.dp else 6.dp)
+                    Modifier
+                        .size(if (selected) 8.dp else 6.dp)
                         .clip(CircleShape)
                         .background(Color.White.copy(alpha = if (selected) 1f else 0.5f))
                 )

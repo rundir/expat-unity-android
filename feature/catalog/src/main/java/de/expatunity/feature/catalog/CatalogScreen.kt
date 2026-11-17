@@ -53,6 +53,7 @@ import de.expatunity.core.ui.ErrorState
 import de.expatunity.core.ui.ErrorTypeProvider
 import de.expatunity.core.ui.FavoriteButton
 import de.expatunity.core.ui.LocalePreviews
+import de.expatunity.core.ui.sharedComplexImage
 import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @Composable
@@ -196,9 +197,11 @@ private fun ComplexCard(
 ) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
-            model = item.coverImageUrl, contentDescription = item.name,
+            model = item.coverImageUrl,
+            contentDescription = item.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier
+                .sharedComplexImage(item.id, tag = "TAG-CARD")
                 .fillMaxWidth()
                 .height(180.dp),
         )

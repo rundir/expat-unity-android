@@ -135,7 +135,7 @@ fun ComplexScreen(
             ) {
                 val c = state.complex
                 item {
-                    ImageGallery(c.images)
+                    ImageGallery(c.images, sharedKeyId = c.id)
                 }
                 item {
                     Column(Modifier.padding(horizontal = 16.dp)) {
