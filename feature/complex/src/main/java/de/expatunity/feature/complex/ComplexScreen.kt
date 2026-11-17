@@ -1,7 +1,6 @@
 package de.expatunity.feature.complex
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,15 +117,13 @@ fun ComplexScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         when (state) {
-            ComplexUiState.Loading -> Box(
+            ComplexUiState.Loading -> ComplexDetailPlaceholder(
                 Modifier
                     .fillMaxSize()
-                    .padding(padding),
-                Alignment.Center
-            ) { CircularProgressIndicator() }
+                    .padding(padding)
+            )
 
-            is ComplexUiState.Error ->
-                ErrorState(state.type, onRetry)
+            is ComplexUiState.Error -> ErrorState(state.type, onRetry)
 
             is ComplexUiState.Content -> LazyColumn(
                 contentPadding = padding,
@@ -141,8 +137,7 @@ fun ComplexScreen(
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                         Markdown(
-                            content = c.description ?: "",
-                            modifier = Modifier.fillMaxWidth()
+                            content = c.description ?: "", modifier = Modifier.fillMaxWidth()
                         )
                         Text(
                             stringResource(R.string.complex_apartments_section),
@@ -163,16 +158,14 @@ fun ComplexScreen(
                             )
                         },
                         supportingContent = {
-                            Text(
-                                a.price?.let { stringResource(R.string.price_eur, it) }
-                                    ?: stringResource(R.string.price_on_request)
-                            )
+                            Text(a.price?.let { stringResource(R.string.price_eur, it) }
+                                ?: stringResource(R.string.price_on_request))
                         },
                         trailingContent = {
-                            if (a.status == ListingStatus.ACTIVE && a.price != null)
-                                TextButton(onClick = { onCalculate(a) }) {
-                                    Text(stringResource(R.string.action_calculate))
-                                }
+                            if (a.status == ListingStatus.ACTIVE && a.price != null) TextButton(
+                                onClick = { onCalculate(a) }) {
+                                Text(stringResource(R.string.action_calculate))
+                            }
                             else Text(a.status.label(), style = MaterialTheme.typography.labelSmall)
                         },
                     )
@@ -200,12 +193,20 @@ private val previewComplex = ComplexDetail(
     images = listOf("test", "test1", "test2"),
     apartments = listOf(
         Apartment(
-            id = "a1", title = "1", areaSqm = 54.0, price = 165000.0,
-            expectedRentMonthly = 650.0, status = ListingStatus.ACTIVE
+            id = "a1",
+            title = "1",
+            areaSqm = 54.0,
+            price = 165000.0,
+            expectedRentMonthly = 650.0,
+            status = ListingStatus.ACTIVE
         ),
         Apartment(
-            id = "a2", title = "2", areaSqm = 72.0, price = null,
-            expectedRentMonthly = null, status = ListingStatus.SOLD
+            id = "a2",
+            title = "2",
+            areaSqm = 72.0,
+            price = null,
+            expectedRentMonthly = null,
+            status = ListingStatus.SOLD
         ),
     ),
     city = "Landshut",
@@ -219,8 +220,10 @@ private fun ComplexScreenPreview() {
     ExpatUnityTheme {
         ComplexScreen(
             state = ComplexUiState.Content(previewComplex),
-            onBack = {}, onRetry = {}, {}, {}
-        )
+            onBack = {},
+            onRetry = {},
+            {},
+            {})
     }
 }
 
