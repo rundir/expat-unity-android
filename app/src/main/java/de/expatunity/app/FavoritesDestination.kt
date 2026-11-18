@@ -13,6 +13,8 @@ import kotlinx.serialization.Serializable
 data object FavoritesDestination
 @Serializable
 data object MapDestination
+@Serializable
+data class ComplexDetailDestination(val id: String)
 
 enum class TopLevelTab(val route: Any, val icon: ImageVector, @StringRes val label: Int) {
     Catalog(CatalogDestination, Icons.AutoMirrored.Filled.List, R.string.tab_catalog),

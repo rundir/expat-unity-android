@@ -36,10 +36,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.ui.LocalNavAnimatedScope
 import de.expatunity.core.ui.LocalSharedTransitionScope
 import de.expatunity.feature.calculator.CalculatorDestination
+import de.expatunity.feature.calculator.CalculatorRoute
 import de.expatunity.feature.catalog.CatalogDestination
 import de.expatunity.feature.catalog.CatalogRoute
 import de.expatunity.feature.complex.ComplexRoute
@@ -70,8 +72,23 @@ fun ExpatUnityApp() {
                 NavHost(nav, startDestination = CatalogDestination) {
                     composable<CatalogDestination> { CatalogListDetail(nav, favoritesOnly = false) }
                     composable<FavoritesDestination> { CatalogListDetail(nav, favoritesOnly = true) }
-                    composable<MapDestination> { TabPlaceholder("Map coming soon") }
-                    composable<MapDestination> { MapRoute(onOpenComplex = { /* пока пусто */ }) }
+                    composable<MapDestination> {
+                        MapRoute(onOpenComplex = { id -> nav.navigate(ComplexDetailDestination(id)) })
+                    }
+                    composable<ComplexDetailDestination> { entry ->
+                        val id = entry.toRoute<ComplexDetailDestination>().id
+                        ComplexRoute(
+                            complexId = id,
+                            onBack = nav::popBackStack,
+                            onCalculate = { a ->
+                                nav.navigate(CalculatorDestination(a.price, a.expectedRentMonthly)) { launchSingleTop = true }
+                            },
+                        )
+                    }
+                    composable<CalculatorDestination> {
+                        CalculatorRoute(onBack = nav::popBackStack)
+                    }
+
                 }
             }
         }
