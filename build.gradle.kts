@@ -13,29 +13,30 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.secrets) apply false
 }
 
 subprojects {
     plugins.withId("com.android.base") {
         extensions.configure<KotlinAndroidProjectExtension>("kotlin") {
             compilerOptions {
-                jvmTarget.set(JvmTarget.JVM_11)
+                jvmTarget.set(JvmTarget.JVM_17)
             }
         }
     }
     plugins.withId("com.android.library") {
         extensions.configure<LibraryExtension>("android") {
             compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
             }
         }
     }
     plugins.withId("com.android.application") {
         extensions.configure<ApplicationExtension>("android") {
             compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
             }
         }
     }

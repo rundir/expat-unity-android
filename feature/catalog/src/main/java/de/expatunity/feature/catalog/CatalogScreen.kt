@@ -213,7 +213,8 @@ private fun CatalogPreview() {
                         ListingStatus.ACTIVE,
                         249000.0,
                         null,
-                        3
+                        3,
+                        null,
                     )
                 )
             ),

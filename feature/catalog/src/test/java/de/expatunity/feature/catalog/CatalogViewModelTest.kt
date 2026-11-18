@@ -76,7 +76,8 @@ class CatalogViewModelTest {
             ListingStatus.UNKNOWN,
             100.0,
             "coverImageUrl",
-            7
+            7,
+            null
         )
     }
 

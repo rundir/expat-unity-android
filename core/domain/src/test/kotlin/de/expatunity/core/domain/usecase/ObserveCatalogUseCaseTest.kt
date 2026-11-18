@@ -67,13 +67,14 @@ class ObserveCatalogUseCaseTest {
     }
 
     private fun summary(id: String, name: String) = ComplexSummary(
-            id,
-            name,
-            "city",
-            ListingStatus.UNKNOWN,
-            100.0,
-            "coverImageUrl",
-            7
-        )
+        id,
+        name,
+        "city",
+        ListingStatus.UNKNOWN,
+        100.0,
+        "coverImageUrl",
+        7,
+        null
+    )
 
 }

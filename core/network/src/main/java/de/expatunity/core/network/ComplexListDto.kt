@@ -8,6 +8,7 @@ data class ComplexListDto(val items: List<ComplexSummaryDto>, val page: Int, val
 @Serializable
 data class ComplexSummaryDto(
     val id: String, val name: String, val city: String? = null, val status: String,
+    val location: LocationDto? = null,
     val priceFrom: Double? = null, val coverImageUrl: String? = null, val unitsAvailable: Int = 0,
 )
 
@@ -21,5 +22,9 @@ data class UnitDto(
 data class ComplexDetailDto(
     val id: String, val name: String, val city: String? = null, val address: String? = null,
     val status: String, val description: String? = null, val images: List<String> = emptyList(),
+    val location: LocationDto? = null,
     val units: List<UnitDto> = emptyList(), val fallbackUsed: Boolean = false,
 )
+
+@Serializable
+data class LocationDto(val lat: Double?, val lng: Double?)

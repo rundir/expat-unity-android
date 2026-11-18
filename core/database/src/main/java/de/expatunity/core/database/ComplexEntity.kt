@@ -18,6 +18,8 @@ data class ComplexEntity(
     val priceFrom: Double?,
     val coverImageUrl: String?,
     val unitsAvailable: Int,
+    val lat: Double?,
+    val lng: Double?,
 )
 
 @Dao

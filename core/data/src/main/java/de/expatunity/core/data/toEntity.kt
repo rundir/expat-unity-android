@@ -2,7 +2,7 @@ package de.expatunity.core.data
 
 import de.expatunity.core.database.ComplexEntity
 import de.expatunity.core.domain.ComplexSummary
-import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.domain.Location
 
 fun ComplexSummary.toEntity(locale: String) =
     ComplexEntity(
@@ -13,10 +13,19 @@ fun ComplexSummary.toEntity(locale: String) =
         status.name,
         priceFrom,
         coverImageUrl,
-        unitsAvailable
+        unitsAvailable,
+        location?.lat,
+        location?.lng,
     )
 
 fun ComplexEntity.toDomain() =
     ComplexSummary(
-        id, name, city, ListingStatus.valueOf(status), priceFrom, coverImageUrl, unitsAvailable
+        id,
+        name,
+        city,
+        status.toStatus(),
+        priceFrom,
+        coverImageUrl,
+        unitsAvailable,
+        location = if (lat != null && lng != null) Location(lat, lng) else null,
     )

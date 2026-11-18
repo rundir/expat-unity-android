@@ -12,8 +12,10 @@ import de.expatunity.core.domain.ComplexDetail
 import de.expatunity.core.domain.ComplexRepository
 import de.expatunity.core.domain.ComplexSummary
 import de.expatunity.core.domain.ListingStatus
+import de.expatunity.core.domain.Location
 import de.expatunity.core.network.ComplexDetailDto
 import de.expatunity.core.network.ComplexSummaryDto
+import de.expatunity.core.network.LocationDto
 import de.expatunity.core.network.MobileApi
 import de.expatunity.core.network.UnitDto
 import kotlinx.coroutines.flow.Flow
@@ -21,12 +23,13 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-private fun String.toStatus() =
+fun String.toStatus() =
     runCatching { ListingStatus.valueOf(this) }.getOrDefault(ListingStatus.UNKNOWN)
 
 fun ComplexSummaryDto.toDomain() =
-    ComplexSummary(id, name, city, status.toStatus(), priceFrom, coverImageUrl, unitsAvailable)
+    ComplexSummary(id, name, city, status.toStatus(), priceFrom, coverImageUrl, unitsAvailable, location?.toDomain())
 
+fun LocationDto.toDomain() = Location(lat, lng)
 fun UnitDto.toDomain() =
     Apartment(id, title, areaSqm, price, expectedRentMonthly, status.toStatus())
 
@@ -39,7 +42,8 @@ fun ComplexDetailDto.toDomain() = ComplexDetail(
     description,
     images,
     units.map { it.toDomain() },
-    fallbackUsed
+    fallbackUsed,
+    location?.toDomain(),
 )
 
 class DefaultComplexRepository @Inject constructor(

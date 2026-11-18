@@ -11,6 +11,7 @@ fun sampleSummary(id: String, name: String): ComplexSummary {
             ListingStatus.ACTIVE,
             0.0,
             "coverImageUrl",
-            9
+            9,
+            null
         )
     }
