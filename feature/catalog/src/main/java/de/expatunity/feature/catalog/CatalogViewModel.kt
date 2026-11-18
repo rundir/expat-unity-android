@@ -125,9 +125,6 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
-    private fun List<ComplexSummary>.filterBy(q: String) =
-        if (q.isBlank()) this else filter { it.name.contains(q, ignoreCase = true) }
-
     sealed interface CatalogEvent {
         data class ShowError(val type: ErrorType) : CatalogEvent
 

@@ -49,9 +49,13 @@ import de.expatunity.core.ui.theme.ExpatUnityTheme
 
 @Composable
 fun CatalogRoute(
-    viewModel: CatalogViewModel = hiltViewModel(),
+    favoritesOnly: Boolean = false,
+    viewModel: CatalogViewModel = hiltViewModel(key = "catalog-$favoritesOnly"),
     onOpenComplex: (String) -> Unit,
 ) {
+    LaunchedEffect(favoritesOnly) {
+        if (favoritesOnly) viewModel.onFavoritesOnlyChange(favoritesOnly)
+    }
 
     val snackbar = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -59,7 +63,7 @@ fun CatalogRoute(
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
     val offlineMessage by rememberUpdatedState(stringResource(R.string.error_offline_cached))
     val cantAddFavMessage by rememberUpdatedState(stringResource(R.string.error_fav_failed))
-    val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
+    val filterFavorites by viewModel.favoritesOnly.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(Unit) {
@@ -75,14 +79,15 @@ fun CatalogRoute(
 
     CatalogScreen(
         state, refreshing, query,
-        snackbarHostState = snackbar,
-        onQueryChange = viewModel::onQueryChange,
         onRetry = viewModel::refresh,
         onRefresh = viewModel::refresh,
         onOpenComplex = onOpenComplex,
+        onQueryChange = viewModel::onQueryChange,
         onToggleFavorite = viewModel::onToggleFavorite,
-        favoritesOnly = favoritesOnly,
+        favoritesOnly = filterFavorites,
         onFavoritesOnlyChange = viewModel::onFavoritesOnlyChange,
+        snackbarHostState = snackbar,
+        showFavoritesFilter = !favoritesOnly,
     )
 }
 
@@ -99,6 +104,7 @@ fun CatalogScreen(
     favoritesOnly: Boolean,
     onFavoritesOnlyChange: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    showFavoritesFilter: Boolean = true,
 ) {
     Scaffold(
         modifier = Modifier.focusable(),
@@ -140,7 +146,7 @@ fun CatalogScreen(
                         singleLine = true,
                     )
 
-                    FilterChip(
+                    if (showFavoritesFilter) FilterChip(
                         selected = favoritesOnly,
                         onClick = { onFavoritesOnlyChange(!favoritesOnly) },
                         label = { Text(stringResource(R.string.catalog_favorites_only)) },
@@ -213,13 +219,13 @@ private fun CatalogPreview() {
             ),
             refreshing = false,
             "",
-            favoritesOnly = false,
             onRetry = {},
             onRefresh = {},
             onOpenComplex = {},
             onQueryChange = {},
             onToggleFavorite = {},
-            onFavoritesOnlyChange = {}
+            favoritesOnly = false,
+            onFavoritesOnlyChange = {},
         )
     }
 }
@@ -246,11 +252,12 @@ private fun CatalogError(
     CatalogUiState.Error(type),
     refreshing = false,
     "",
-    favoritesOnly = false,
     onRetry = {},
     onRefresh = {},
     onOpenComplex = {},
     onQueryChange = {},
     onToggleFavorite = {},
+    favoritesOnly = false,
     onFavoritesOnlyChange = {},
+    showFavoritesFilter = true,
 )
