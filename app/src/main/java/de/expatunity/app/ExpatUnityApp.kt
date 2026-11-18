@@ -36,10 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.rememberCameraPositionState
 import de.expatunity.core.domain.Apartment
 import de.expatunity.core.ui.LocalNavAnimatedScope
 import de.expatunity.core.ui.LocalSharedTransitionScope
@@ -47,6 +43,7 @@ import de.expatunity.feature.calculator.CalculatorDestination
 import de.expatunity.feature.catalog.CatalogDestination
 import de.expatunity.feature.catalog.CatalogRoute
 import de.expatunity.feature.complex.ComplexRoute
+import de.expatunity.feature.map.MapRoute
 import kotlinx.coroutines.launch
 
 @Composable
@@ -74,13 +71,8 @@ fun ExpatUnityApp() {
                     composable<CatalogDestination> { CatalogListDetail(nav, favoritesOnly = false) }
                     composable<FavoritesDestination> { CatalogListDetail(nav, favoritesOnly = true) }
                     composable<MapDestination> { TabPlaceholder("Map coming soon") }
-                    composable<MapDestination> {
-                        val munich = LatLng(48.137, 11.575)
-                        val camera = rememberCameraPositionState {
-                            position = CameraPosition.fromLatLngZoom(munich, 6f)
-                        }
-                        GoogleMap(Modifier.fillMaxSize(), cameraPositionState = camera)
-                    }                }
+                    composable<MapDestination> { MapRoute(onOpenComplex = { /* пока пусто */ }) }
+                }
             }
         }
     }

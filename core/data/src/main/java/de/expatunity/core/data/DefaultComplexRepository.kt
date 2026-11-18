@@ -29,7 +29,12 @@ fun String.toStatus() =
 fun ComplexSummaryDto.toDomain() =
     ComplexSummary(id, name, city, status.toStatus(), priceFrom, coverImageUrl, unitsAvailable, location?.toDomain())
 
-fun LocationDto.toDomain() = Location(lat, lng)
+fun LocationDto.toDomain(): Location? {
+    val lat = lat ?: return null
+    val lng = lng ?: return null
+    return Location(lat, lng)
+}
+
 fun UnitDto.toDomain() =
     Apartment(id, title, areaSqm, price, expectedRentMonthly, status.toStatus())
 

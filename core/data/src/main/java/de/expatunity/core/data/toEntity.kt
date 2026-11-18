@@ -27,5 +27,9 @@ fun ComplexEntity.toDomain() =
         priceFrom,
         coverImageUrl,
         unitsAvailable,
-        location = if (lat != null && lng != null) Location(lat, lng) else null,
+        location = run {
+            val la = lat ?: return@run null
+            val ln = lng ?: return@run null
+            Location(la, ln)
+        },
     )
