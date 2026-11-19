@@ -1,4 +1,4 @@
-package de.expatunity.feature.complex
+package de.expatunity.feature.complex.video
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.media3.common.util.UnstableApi
+import de.expatunity.feature.complex.R
 import androidx.media3.ui.compose.material3.Player as MediaPlayer
 
 @Composable

@@ -1,25 +1,18 @@
-package de.expatunity.feature.complex
+package de.expatunity.feature.complex.video
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.DefaultRenderersFactory
-import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import de.expatunity.feature.complex.di.PlayerFactory
 import javax.inject.Inject
 
 @UnstableApi
 @HiltViewModel
-class VideoPlayerViewModel @Inject constructor(
-    @ApplicationContext context: Context,
-) : ViewModel() {
+class VideoPlayerViewModel @Inject constructor(factory: PlayerFactory) : ViewModel() {
 
-    val player: ExoPlayer = ExoPlayer.Builder(
-        context,
-        DefaultRenderersFactory(context).setEnableDecoderFallback(true),
-    ).build()
+    val player: Player = factory.create()
 
     private var currentUrl: String? = null
 
