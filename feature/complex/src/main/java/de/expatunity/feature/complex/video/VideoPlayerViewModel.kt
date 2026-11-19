@@ -1,16 +1,19 @@
 package de.expatunity.feature.complex.video
 
 import androidx.lifecycle.ViewModel
-import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.expatunity.feature.complex.di.MediaItemFactory
 import de.expatunity.feature.complex.di.PlayerFactory
 import javax.inject.Inject
 
 @UnstableApi
 @HiltViewModel
-class VideoPlayerViewModel @Inject constructor(factory: PlayerFactory) : ViewModel() {
+class VideoPlayerViewModel @Inject constructor(
+    factory: PlayerFactory,
+    private val mediaItemFactory: MediaItemFactory
+) : ViewModel() {
 
     val player: Player = factory.create()
 
@@ -21,7 +24,7 @@ class VideoPlayerViewModel @Inject constructor(factory: PlayerFactory) : ViewMod
     fun load(url: String) {
         if (url == currentUrl) return   // при повороте не перезагружаем
         currentUrl = url
-        player.setMediaItem(MediaItem.fromUri(url))
+        player.setMediaItem(mediaItemFactory.create(url))
         player.prepare()
         player.playWhenReady = true
     }

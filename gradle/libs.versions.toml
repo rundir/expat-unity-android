@@ -10,6 +10,7 @@ kotlin = "2.4.21"
 composeBom = "2026.09.00"
 jetbrainsKotlinJvm = "2.4.21"
 material = "1.14.0"
+mockk = "1.14.12"
 multiplatformMarkdownRendererM3 = "0.46.0"
 retrofit = "3.0.0"
 okhttp = "5.5.1"
@@ -50,6 +51,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRendererM3" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
