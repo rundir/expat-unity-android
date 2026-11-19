@@ -3,6 +3,7 @@ package de.expatunity.feature.complex
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,14 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
+import androidx.media3.ui.compose.material3.Player as MediaPlayer
 
 @Composable
 fun ComplexVideo(videoUrl: String, modifier: Modifier = Modifier) {
@@ -58,7 +58,7 @@ private fun VideoPlayer(videoUrl: String) {
             setMediaItem(MediaItem.fromUri(videoUrl))
             prepare()
             playWhenReady = true
-            addListener(object : Player.Listener {
+            if (BuildConfig.DEBUG) addListener(object : Player.Listener {
                 override fun onPlayerError(error: PlaybackException) {
                     Log.e("Video", "error ${error.errorCodeName}", error)
                 }
@@ -71,8 +71,13 @@ private fun VideoPlayer(videoUrl: String) {
     DisposableEffect(player) {
         onDispose { player.release() }
     }
-    AndroidView(
-        factory = { PlayerView(it).apply { this.player = player } },
-        modifier = Modifier.fillMaxSize(),
+
+    var showControls by remember { mutableStateOf(true) }
+    MediaPlayer(
+        player = player,
+        showControls = showControls,
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { showControls = !showControls },
     )
 }
