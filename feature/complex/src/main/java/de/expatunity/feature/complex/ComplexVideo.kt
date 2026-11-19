@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,12 +36,19 @@ import androidx.media3.ui.compose.material3.Player as MediaPlayer
 @Composable
 fun ComplexVideo(videoUrl: String, modifier: Modifier = Modifier) {
     var started by rememberSaveable { mutableStateOf(false) }
-    Box(modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) {
+    Box(modifier
+        .fillMaxWidth()
+        .aspectRatio(16f / 9f)
+        .background(Color.Black)) {
         if (started) {
             VideoPlayer(videoUrl)
         } else {
             IconButton(onClick = { started = true }, modifier = Modifier.align(Alignment.Center)) {
-                Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.play_video), tint = Color.White)
+                Icon(
+                    Icons.Default.PlayArrow,
+                    contentDescription = stringResource(R.string.play_video),
+                    tint = Color.White
+                )
             }
         }
     }
@@ -50,18 +58,23 @@ fun ComplexVideo(videoUrl: String, modifier: Modifier = Modifier) {
 @Composable
 private fun VideoPlayer(videoUrl: String) {
     val context = LocalContext.current
+    var position by rememberSaveable(videoUrl) { mutableLongStateOf(0L) }
+    var playWhenReady by rememberSaveable(videoUrl) { mutableStateOf(true) }
+
     val player = remember(videoUrl) {
         ExoPlayer.Builder(
             context,
             DefaultRenderersFactory(context).setEnableDecoderFallback(true)
         ).build().apply {
-            setMediaItem(MediaItem.fromUri(videoUrl))
+            setMediaItem(MediaItem.fromUri(videoUrl), position)
+            this.playWhenReady = playWhenReady
             prepare()
-            playWhenReady = true
+
             if (BuildConfig.DEBUG) addListener(object : Player.Listener {
                 override fun onPlayerError(error: PlaybackException) {
                     Log.e("Video", "error ${error.errorCodeName}", error)
                 }
+
                 override fun onPlaybackStateChanged(state: Int) {
                     Log.d("Video", "state $state")
                 }
@@ -69,7 +82,11 @@ private fun VideoPlayer(videoUrl: String) {
         }
     }
     DisposableEffect(player) {
-        onDispose { player.release() }
+        onDispose {
+            position = player.currentPosition
+            playWhenReady = player.playWhenReady
+            player.release()
+        }
     }
 
     var showControls by remember { mutableStateOf(true) }
