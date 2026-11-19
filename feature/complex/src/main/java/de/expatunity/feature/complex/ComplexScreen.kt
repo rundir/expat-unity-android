@@ -143,6 +143,7 @@ fun ComplexScreen(
                 item {
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+                        c.videoUrl?.let { ComplexVideo(it) }
                         Markdown(
                             content = c.description ?: "", modifier = Modifier.fillMaxWidth()
                         )
@@ -219,6 +220,7 @@ private val previewComplex = ComplexDetail(
     city = "Landshut",
     status = ListingStatus.ACTIVE,
     fallbackUsed = false,
+    videoUrl = null
 )
 
 @LocalePreviews

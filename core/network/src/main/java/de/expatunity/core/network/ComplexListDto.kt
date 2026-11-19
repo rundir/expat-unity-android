@@ -24,7 +24,8 @@ data class ComplexDetailDto(
     val status: String, val description: String? = null, val images: List<String> = emptyList(),
     val location: LocationDto? = null,
     val units: List<UnitDto> = emptyList(), val fallbackUsed: Boolean = false,
-)
+    val videoUrl: String? = null,
+    )
 
 @Serializable
 data class LocationDto(val lat: Double?, val lng: Double?)

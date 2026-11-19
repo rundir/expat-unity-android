@@ -55,7 +55,8 @@ class ComplexViewModelTest {
         description = "description",
         images = emptyList(),
         apartments = emptyList(),
-        fallbackUsed = false
+        fallbackUsed = false,
+        videoUrl = null,
     )
 
     @Test
@@ -82,6 +83,7 @@ class ComplexViewModelTest {
         images = emptyList(),
         apartments = emptyList(),
         fallbackUsed = false,
+        videoUrl = null,
     )
 
     @Test

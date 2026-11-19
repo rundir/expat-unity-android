@@ -15,4 +15,5 @@ data class ComplexDetailEntity(
     val status: String,
     val description: String?,
     val fallbackUsed: Boolean,
+    val videoUrl: String?
 )

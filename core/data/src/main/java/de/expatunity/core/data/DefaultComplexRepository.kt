@@ -49,6 +49,7 @@ fun ComplexDetailDto.toDomain() = ComplexDetail(
     units.map { it.toDomain() },
     fallbackUsed,
     location?.toDomain(),
+    videoUrl = videoUrl?.takeIf { it.isNotBlank() } ?: "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
 )
 
 class DefaultComplexRepository @Inject constructor(
@@ -96,6 +97,7 @@ class DefaultComplexRepository @Inject constructor(
                     status = fresh.status.name,
                     description = fresh.description,
                     fallbackUsed = fresh.fallbackUsed,
+                    videoUrl = fresh.videoUrl,
                 ),
                 images = fresh.images.mapIndexed { position, url ->
                     ComplexImageEntity(

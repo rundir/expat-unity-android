@@ -5,4 +5,5 @@ data class ComplexDetail(
     val status: ListingStatus, val description: String?, val images: List<String>,
     val apartments: List<Apartment>, val fallbackUsed: Boolean,
     val location: Location? = null,
-)
+    val videoUrl: String?,
+    )

@@ -24,4 +24,5 @@ fun CachedComplexDetail.toDomain() = ComplexDetail(
         )
     },
     fallbackUsed = detail.fallbackUsed,
+    videoUrl = detail.videoUrl,
 )

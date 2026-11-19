@@ -17,5 +17,6 @@
     <string name="error_fav_failed">Не удалось изменить избранное</string>
     <string name="action_add_favorite">Add to favorites</string>
     <string name="action_remove_favorite">Remove from favorites</string>
+    <string name="play_video">Play video</string>
 
 </resources>
