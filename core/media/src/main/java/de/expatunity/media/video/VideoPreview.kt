@@ -1,5 +1,7 @@
 package de.expatunity.media.video
 
+import android.content.pm.ActivityInfo
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -88,6 +90,7 @@ private fun VideoPlayer(
                 decorFitsSystemWindows = false,
             ),
         ) {
+            ForceLandscape()
             ImmersiveSystemBars()
             PlayerContent(
                 player = viewModel.player,
@@ -159,5 +162,19 @@ private fun ImmersiveSystemBars() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller.hide(WindowInsetsCompat.Type.systemBars())
         onDispose { controller.show(WindowInsetsCompat.Type.systemBars()) }
+    }
+}
+
+@Composable
+private fun ForceLandscape() {
+    val activity = LocalActivity.current ?: return
+    DisposableEffect(activity) {
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        onDispose {
+            // при повороте активити пересоздаётся — тогда ориентацию не трогаем
+            if (!activity.isChangingConfigurations) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
     }
 }
