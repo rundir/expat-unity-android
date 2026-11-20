@@ -42,7 +42,7 @@ import de.expatunity.core.ui.FavoriteButton
 import de.expatunity.core.ui.ImageGallery
 import de.expatunity.core.ui.LocalePreviews
 import de.expatunity.core.ui.theme.ExpatUnityTheme
-import de.expatunity.media.video.ComplexVideo
+import de.expatunity.media.video.VideoPreview
 
 @Composable
 fun ComplexRoute(
@@ -144,7 +144,7 @@ fun ComplexScreen(
                 item {
                     Column(Modifier.padding(horizontal = 16.dp)) {
                         c.address?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-                        c.videoUrl?.let { ComplexVideo(it) }
+                        c.videoUrl?.let { VideoPreview(it) }
                         Markdown(
                             content = c.description ?: "", modifier = Modifier.fillMaxWidth()
                         )

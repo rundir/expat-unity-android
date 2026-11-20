@@ -43,7 +43,7 @@ import de.expatunity.core.media.R
 import androidx.media3.ui.compose.material3.Player as MediaPlayer
 
 @Composable
-fun ComplexVideo(videoUrl: String, modifier: Modifier = Modifier) {
+fun VideoPreview(videoUrl: String, modifier: Modifier = Modifier) {
     var started by rememberSaveable { mutableStateOf(false) }
     Box(
         modifier
