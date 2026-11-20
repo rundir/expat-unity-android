@@ -12,15 +12,16 @@
     <string name="catalog_search_hint">Пошуковий запит</string>
     <string name="cd_clear_search">Очистити</string>
     <string name="catalog_no_results">Нічого не знайдено</string>
-    <string name="error_offline_cached">No connection. Showing saved data</string>
-    <string name="error_fav_failed">Не удалось изменить избранное</string>
-    <string name="action_add_favorite">Add to favorites</string>
-    <string name="action_remove_favorite">Remove from favorites</string>
+    <string name="error_offline_cached">Немає зʼєднання. Показано збережені дані</string>
+    <string name="error_fav_failed">Не вдалося змінити обране</string>
+    <string name="action_add_favorite">Додати до обраного</string>
+    <string name="action_remove_favorite">Видалити з обраного</string>
     <string name="catalog_favorites_only">Лише обране</string>
     <string name="catalog_no_favorites">В обраному поки нічого немає</string>
     <plurals name="catalog_units_available">
         <item quantity="one">%d квартира вільна</item>
         <item quantity="few">%d квартири вільні</item>
         <item quantity="many">%d квартир вільні</item>
+        <item quantity="other">%d квартири вільно</item>
     </plurals>
 </resources>

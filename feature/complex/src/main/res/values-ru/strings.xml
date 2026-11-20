@@ -14,7 +14,7 @@
     <string name="status_sold">Продан</string>
     <string name="status_unknown">Неизвестно</string>
     <string name="error_fav_failed">Не удалось изменить избранное</string>
-    <string name="action_add_favorite">Add to favorites</string>
+    <string name="action_add_favorite">Добавить в избранное</string>
     <string name="error_cached_data">Не удалось обновить. Показаны сохранённые данные.</string>
-    <string name="action_remove_favorite">Remove from favorites</string>
+    <string name="action_remove_favorite">Удалить из избранного</string>
 </resources>

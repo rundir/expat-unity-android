@@ -1,8 +1,6 @@
 # Expat Unity Android audit
 
-Reviewed: 7 November 2026. Follow-up: 9 November 2026, through commit `6f54bd8` (`add unit tests for ObserveCatalogUseCase in core:domain`). Scope is the multi-module app (`app`, `core:domain`, `core:data`, `core:network`, `core:database`, `core:ui`, `core:testing`, `feature:catalog`, `feature:complex`, `feature:calculator`). This is a static review plus the unit tests named below. It does not include a device run or a release build.
-
-On 9 November these tests passed: `:core:domain:test`, `:feature:catalog:testDebugUnitTest`, `:feature:complex:testDebugUnitTest`.
+Reviewed: 7 November 2026. Follow-ups: 9 November 2026 (`6f54bd8`) and 20 November 2026 (`7758934`). Scope is the current multi-module app, including `core:media` and `feature:map`. This follow-up is a static read of the commits since 9 November. It does not include a device run.
 
 Severity:
 
@@ -10,186 +8,79 @@ Severity:
 - **Medium** — real defect or structural risk, limited blast radius.
 - **Low** — maintainability, polish, or hardening.
 
-## What changed since 7 November
+## What landed since 9 November
 
-Favorites are stored in Room (`favorites`, schema 3, `AutoMigration(2, 3)`) and toggled from each catalog card. A "favorites only" chip filters that list. Search and the chip are combined in `ObserveCatalogUseCase`, which also reports `hasAnyComplexes` so an active filter is not mistaken for an empty catalog. Catalog and complex view models now call domain use cases instead of `ComplexRepository` directly. `core:data` owns the repositories. `CatalogDestination` lives in `de.expatunity.feature.catalog`.
+Bottom navigation has Catalog, Favorites, and Map. Catalog and Favorites share an adaptive list-detail scaffold. Map plots complexes that have coordinates and opens a full-screen detail. Detail can play a video, toggle a favorite, and share the cover image into the detail pane. Room is at version 5, with auto-migrations through 4→5. Java and Kotlin bytecode are 17. `ComplexDetailDaoTest` and `FavoritesDaoTest` exercise `replaceAll` and favorite toggles on an in-memory database. `VideoPlayerViewModelTest` checks load, same-URL skip, and pause/resume.
 
-The new filter logic is the right shape. `ObserveCatalogUseCase` applies the query and the favorites chip together, keeps favorite ids on the result, and sets `hasAnyComplexes` from the unfiltered list. `ObserveCatalogUseCaseTest` covers no filter, query plus favorites, and a filter that matches nothing while complexes still exist. `CatalogSearchTest` covers the same combinations through the view model, including removing the last favorite. `CatalogViewModelTest` covers a successful toggle and a failed write that leaves the previous ids in place. Favorite ids are not locale-specific, which matches a complex id that is stable across languages. Each toggle runs in a Room transaction, so two taps serialize instead of interleaving a read and a write.
-
-Most of the other new use cases (`ObserveComplexesUseCase`, `ObserveComplexUseCase`, `RefreshComplexesUseCase`, `RefreshComplexUseCase`, `ObserveFavoriteIdsUseCase`, `ToggleFavoriteUseCase`) forward one repository call. `ObserveCatalogUseCase` is the one that adds behavior. That split is consistent; it does not by itself fix loading, paging, or error mapping.
-
-## Resolved since 7 November
-
-| ID | What changed |
-| --- | --- |
-| COR-2 | `_refreshing` is an input of `uiState`'s `combine`. An empty successful refresh can leave `Loading` and become `Content(empty)`. A filter that hides every row stays on `Content` because `hasAnyComplexes` is computed before filtering. |
-| ARC-1 | `DefaultComplexRepository` and `DefaultFavoritesRepository` live in `core:data`. `core:network` no longer depends on Room, the database module, or `lifecycle-viewmodel-compose`. `SystemLocaleProvider` uses `javax.inject.Inject`. |
-| ARC-2, in part | `CatalogDestination` is `de.expatunity.feature.catalog.CatalogDestination`, and the app imports it. `core:network` uses `compileSdk { version = release(37) }`. |
-| QUAL-1, in part | Domain models are in their own files. Unused imports noted on 7 November are gone. The "move this to the catalog module" comment is gone. |
-
-`COR-2` still has no view-model test for the empty-success path. The domain test covers "filter matches nothing" only.
+The list-detail split, assisted `ComplexViewModel`, and the player factory are in good shape. The player is created only after the user taps play, released in `onCleared`, and not reloaded for the same URL. Coordinates with a null latitude or longitude are dropped instead of becoming a marker. The Maps key is a manifest placeholder, not a literal in source.
 
 ## Fix first
 
-1. Stop shipping cleartext and body logging in release (`SEC-1`, `SEC-2`).
-2. Point release at the same mobile API path debug uses (`SEC-3`), and use `10.0.2.2` or a LAN host instead of `localhost` for the emulator (`COR-7`).
-3. Load every catalog page (`COR-3`). Favorites-only cannot show a complex that was never stored.
-4. Make the 10-year forecast honest: show assumptions, clamp the loan, and stop using `Double` for money (`COR-1`).
-5. Map unknown cached statuses the same way the network mapper does, and keep the original exception (`COR-4`, `COR-5`).
-6. Translate the new favorite strings (`I18N-1`).
+1. Stop substituting the Big Buck Bunny sample for a missing video (`VID-1`).
+2. Cleartext, body logging, and the release API path are unchanged (`SEC-1`, `SEC-2`, `SEC-3`).
+3. The catalog still stores page 1 only (`COR-3`). The map and the favorites tab read that same truncated cache.
+4. `I18N-1` is fixed. Tab, video, offline, and favorite strings now match de, ru, and uk, and the Ukrainian unit plural includes `other`.
 
-## Open findings
+## New findings
 
-### SEC-1 — Cleartext traffic is allowed in every build
+### VID-1 — A missing video URL becomes a sample cartoon
 
-**High.** Unchanged. `app/src/main/AndroidManifest.xml` sets `android:usesCleartextTraffic="true"` on `<application>`. Debug needs HTTP only for a local CMS. Release still accepts `http://` image and API URLs.
+**High.** `ComplexDetailDto.toDomain()` stores a public ExoPlayer sample whenever the CMS sends no URL:
 
-Restrict cleartext with a network security config: allow it for `localhost` / `10.0.2.2` in debug only, and set `usesCleartextTraffic="false"` on release.
-
-### SEC-2 — HTTP bodies are logged in release
-
-**High.** Unchanged. `NetworkModule.okHttp()` always adds `HttpLoggingInterceptor` at `Level.BODY`.
-
-```23:25:core/network/src/main/java/de/expatunity/core/network/NetworkModule.kt
-    fun okHttp(): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
-        .build()
+```52:52:core/data/src/main/java/de/expatunity/core/data/DefaultComplexRepository.kt
+    videoUrl = videoUrl?.takeIf { it.isNotBlank() } ?: "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
 ```
 
-Install the interceptor only in debug, and use `BASIC` or `HEADERS` even then.
+That value is written into `complex_details`. Every listing without its own video then shows Big Buck Bunny, and the URL stays in Room until a later response contains a real one. Leave `videoUrl` null and let `ComplexScreen` skip `VideoPreview`.
 
-### SEC-3 — Release base URL does not match the mobile API
+### VID-2 — Fullscreen locks the whole activity, and playback errors are invisible
 
-**High.** Unchanged.
+**Medium.** `ForceLandscape` sets `SCREEN_ORIENTATION_SENSOR_LANDSCAPE` on the activity, which recreates it. `rememberSaveable` keeps the dialog, but the rest of the app rotates with the player. `onDispose` skips restoring portrait while `isChangingConfigurations` is true, so a rotation during exit can leave the activity landscape.
 
-| Build | `BASE_URL` |
+`VideoPlayerViewModel.load` always sets `playWhenReady = true` and never listens for player errors. A bad URL is a black rectangle. Position survives rotation only because the same `ViewModel` keeps the `ExoPlayer`. Process death starts the file again from the beginning.
+
+### MAP-1 — The map depends on the catalog cache and a fixed camera
+
+**Medium.** `MapViewModel` only observes Room. It never calls `refreshComplexes`. Markers exist after the catalog tab has successfully stored page 1, and only for rows with both latitude and longitude. The camera is fixed on Germany (`51.16, 10.45`, zoom `5.5`) and does not move to the markers. A marker opens the complex only from the info window, not from the marker click.
+
+`com.google.android.geo.API_KEY` is `${MAPS_API_KEY}` via the secrets plugin. `secrets.properties` is not in the repo and not in `.gitignore`. Add it to `.gitignore` before a local key file is committed. There is no checked-in default, so a clean checkout has an empty placeholder.
+
+### NAV-1 — The favorites tab can flash the full catalog
+
+**Medium.** Favorites uses a second `CatalogViewModel` (`key = "catalog-true"`), whose filter starts at `false`. `LaunchedEffect` sets `favoritesOnly` afterwards:
+
+```56:58:feature/catalog/src/main/java/de/expatunity/feature/catalog/CatalogScreen.kt
+    LaunchedEffect(favoritesOnly) {
+        if (favoritesOnly) viewModel.onFavoritesOnlyChange(favoritesOnly)
+    }
+```
+
+The first emission can be the unfiltered list. Pass the flag into the view model, or start `_favoritesOnly` from the route argument.
+
+The app `Scaffold` applies only the bottom inset. The map and the catalog top sit under the status bar. `TabPlaceholder` is unused. Catalog and Favorites each call `refresh()` from `init`, so opening Favorites starts a second `replaceAll` of page 1 (`COR-6`).
+
+Detail location from the API is parsed and then dropped. `ComplexDetailEntity` has no coordinates, and the cache mapper leaves `ComplexDetail.location` null. The map uses the list table, so this does not hide markers. The detail model field is unused.
+
+## What changed in older findings
+
+| ID | Status on 20 November |
 | --- | --- |
-| debug | `http://localhost:1337/api/mobile/v1/` |
-| release | `https://www.expat-unity.de/cms/` |
-
-`MobileApi` calls `complexes` and `complexes/{id}` relative to that base. Release requests go to `/cms/complexes`. The release field is still nested inside `optimization { }` in `app/build.gradle.kts`. `buildConfigField` belongs on the build type. `optimization.packageScope` still lists only `androidx.**`, `kotlin.**`, and `kotlinx.**`.
-
-### SEC-4 — CMS markdown and image URLs are rendered as-is
-
-**Medium.** Unchanged. `ComplexScreen` passes `description` into `Markdown(...)`. Cover and gallery URLs go straight to Coil. Combined with `SEC-1`, an `http://` image is loaded in the clear.
-
-### SEC-5 — Backup rules are still the sample, and the database now holds favorites
-
-**Medium.** `allowBackup="true"` is set, and both backup XML files are still the Android Studio templates. Default Auto Backup includes `expatunity.db`. On 7 November that file was only a listing cache. It now also stores the user's favorites. Excluding the whole database would drop favorites on restore. Either back up the database on purpose, or move favorites to their own file and exclude only the cache tables.
-
-### COR-1 — The 10-year forecast can show a misleading return
-
-**High.** Unchanged. `InvestmentCalculator` still uses `Double`. Closing costs disappear when cash is lower than those costs. The loan can be negative. Tax is applied only as a refund when taxable income is negative. AfA (0.8 building share, 2.5%), rent growth (0), and appreciation (2%) are hardcoded in `CalculatorViewModel` and never shown. `YieldCalculator` is unused.
-
-The domain test still locks one happy path only (`318_000` price, `70_000` cash, expenses `0`).
-
-### COR-3 — Only the first page is stored
-
-**High.** Unchanged, and it now limits favorites too. `refreshComplexes` always requests page 1:
-
-```115:120:core/data/src/main/java/de/expatunity/core/data/DefaultComplexRepository.kt
-    override suspend fun refreshComplexes(locale: String) {
-        val fresh = try {
-            api.complexes(locale, 1).items.map { it.toDomain() }
-        } catch (e: CancellationException) { throw e
-        } catch (e: Exception) { throw AppException(e.toErrorType()) }
-        dao.replaceAll(locale, fresh.map { it.toEntity(locale) })
-```
-
-`total` is ignored. Search and the favorites chip both filter that truncated list in memory. A favorite whose complex is only on page 2 never appears.
-
-### COR-4 — Cached status uses `valueOf`, the network path does not
-
-**Medium.** Unchanged. `String.toStatus()` in `DefaultComplexRepository` maps an unknown API status to `ListingStatus.UNKNOWN`. The cache mappers in `core/data/.../toDomain.kt` and `toEntity.kt` call `ListingStatus.valueOf`. An unexpected stored status crashes the collector.
-
-### COR-5 — Failures lose their cause, and every HTTP status is "server"
-
-**Medium.** Unchanged. `AppException` does not keep the cause. `toErrorType()` maps every `HttpException` to `Server`. The catalog snackbar still shows `error_offline_cached` for every refresh failure while content is on screen, including a 500. `ComplexScreen` still has one cached-data string. Favorite writes are separate: a failed toggle emits `FavoriteUpdateFailed` and does not pretend the device is offline. That part is right.
-
-### COR-6 — Catalog refresh is still not single-flight
-
-**Medium.** Unchanged. `CatalogViewModel.refresh()` does not cancel the previous job. `ComplexViewModel.load()` does. `replaceAll` is one transaction, so a single call cannot commit an empty table, but two overlapping refreshes are last-writer-wins. Detail observation still invalidates every collector on any write to `complex_details`, `complex_images`, or `complex_apartments`, then runs three queries. Images and apartments still have no foreign key to `complex_details`. Favorites also have no foreign key, so an id remains after the complex disappears from the cache. The favorites-only chip hides it, because the row is no longer in the list.
-
-### COR-7 — Debug base URL points at the phone, not the computer
-
-**Medium.** Unchanged. `http://localhost:1337` on an emulator is the emulator. The host machine is `10.0.2.2`.
-
-### ARC-2 — Packages and unused UI dependencies
-
-**Low.** Still open, smaller than on 7 November.
-
-- `feature:calculator` code lives in `de.expatunity.calculator`.
-- Theme files live in `core:ui` under `de.expatunity.app.ui.theme`.
-- `core:database`, `core:data`, `core:testing`, and `core:ui` depend on AppCompat and Material. `core:data` also depends on the Retrofit serialization converter and does not use it. `core:ui` depends on Material 3 twice: once via the Compose BOM and once as `androidx-material3` pinned to 1.4.0. `ui-tooling-preview` is declared both through the BOM and as a pinned 1.12.1.
-- Android library modules set Java 11 and mostly skip an explicit Kotlin `jvmTarget`.
-
-### UI-1 — Catalog insets and the complex error state
-
-**Medium.** Unchanged. `ExpatUnityApp` wraps the catalog in a `Scaffold`, and `CatalogScreen` adds another. The same `modifier` is passed to that inner `Scaffold` and used again on the `Box`. A `Modifier` belongs in one place.
-
-`ComplexScreen` still does not pad the error branch under the top app bar. `CalculatorScreen` still prints its title twice, clears the result on invalid input with no message, and does not keep edits in `SavedStateHandle`. `fallbackUsed` is still stored and never shown. The favorites chip is not in `SavedStateHandle` either, so process death resets it. Rotation keeps it, because the view model survives.
-
-### UI-2 — Search still matches the name only
-
-**Low.** Filtering moved to `ObserveCatalogUseCase`, and it still matches `name` only. A city such as "Leipzig" returns nothing. `catalog_no_results` has no format argument, but the call site still passes `query`. The English copy is "Search is empty"; German, Russian, and Ukrainian say "no matches". The empty-state branch itself is correct: a non-blank query wins, then the favorites chip, then the empty catalog.
-
-Prices still use `%1$,.0f €`. Gallery dots and the hero image still use raw white and light gray. The card image content description is still the complex name, so TalkBack reads it twice. The new favorite button does have add/remove descriptions. The search field still has a placeholder and no label.
-
-`CatalogViewModel` still has a private `filterBy` that nothing calls. Search behavior lives in `ObserveCatalogUseCase`. The leftover function will drift if someone edits it.
-
-### I18N-1 — Offline copy, Ukrainian plurals, and the new favorite strings
-
-**Medium.** `error_offline_cached` is still English in `values-de`, `values-ru`, and `values-uk`. Ukrainian `catalog_units_available` still omits `other`.
-
-The favorites feature adds new gaps:
-
-- `error_fav_failed` is the Russian sentence "Не удалось изменить избранное" in the default, German, and Ukrainian files. Russian is the only locale where that string matches the language.
-- `action_add_favorite` and `action_remove_favorite` are English in `de`, `ru`, and `uk`.
-- `catalog_favorites_only` and `catalog_no_favorites` are translated in all four locales.
-
-`SystemLocaleProvider` still has the dead Elvis on `Locale.getDefault().language`. The locale is still captured once in each view model.
-
-### PERF-1 — Images and the catalog refresh do more work than they need
-
-**Medium.** Unchanged. No OkHttp cache, no validators, Coil has no explicit decode size. One apartment write still wakes every open detail. `org.gradle.parallel` is still commented out. The build is now ten modules with `core:data`.
-
-### TEST-1 — Catalog behavior is tested; the repository and the calculator are not
-
-**Medium.** Catalog coverage improved. `ObserveCatalogUseCaseTest`, the favorites cases in `CatalogSearchTest`, and the toggle cases in `CatalogViewModelTest` failed to exist on 7 November, and they pass now.
-
-Still open:
-
-- `CalculatorViewModelTest` still asserts the default state twice and builds `SavedStateHandle(mapOf("id" to "42"))`, which is not the calculator route.
-- Instrumented tests are still the Android Studio templates.
-- Nothing tests `DefaultComplexRepository`, `DefaultFavoritesRepository`, the DTO parsers, `toErrorType`, Room `replaceAll`, or migrations 1→2 and 2→3.
-- `FakeComplexRepository.refreshComplexes` still does not write the list.
-- `YieldCalculatorTest` still covers gross yield only.
-- There is no view-model test that an empty successful refresh ends on `Content(empty)` (`COR-2`).
-
-### QUAL-1 — Small cleanups that remain
-
-**Low.** `ComplexDetailDao` still has a commented-out `observe`. `Theme.kt` and `Type.kt` are still the Compose template. Comments still mix Russian and English (`libs.versions.toml`, calculator KDoc, a Russian comment in `CatalogViewModelTest`). There is still no README, CI workflow, Detekt, or ktlint. `core:testing` is still an Android library that pulls AppCompat and Material so JVM tests can see fakes.
-
-## What is already solid
-
-- Feature modules depend on a JVM domain layer. Repositories sit in `core:data`. HTTP stays in `core:network`.
-- Offline cache is deliberate: observe Room, refresh into Room, keep showing cached rows when refresh fails.
-- Room schema is exported. Version is 3, with auto-migrations 1→2 and 2→3. Favorites are a new table, not extra columns on the listing cache.
-- The catalog distinguishes "nothing loaded", "nothing matched", and "no favorites", and that distinction is unit-tested.
-- JSON uses `ignoreUnknownKeys = true`.
-- Navigation destinations for catalog, complex, and calculator are `@Serializable`.
-- Search is debounced (300 ms, immediate when cleared) and list items are keyed.
-- `SharingStarted.WhileSubscribed(5_000)` avoids collecting Room while the screen is in the back stack for long.
-- The only manifest permission is `INTERNET`. The launcher activity is the only exported component.
-- Favorite failures are reported separately from catalog refresh failures.
+| COR-2 | Still fixed. Loading now shows shimmer placeholders instead of a single spinner. |
+| COR-4 | Half fixed. List rows go through `String.toStatus()`. Detail and apartment rows still use `ListingStatus.valueOf`. `ComplexDetailDaoTest` stores the status `"AVAILABLE"`, which is not a `ListingStatus` name and would crash that mapper. |
+| ARC-2 | Fixed. Calculator and theme packages match their modules. Java 17 and Kotlin `jvmTarget` 17 are set in the root build. `libs.material` and AppCompat are still unused dependencies on catalog, complex, calculator, map, and `core:media`. |
+| UI-1 | Partly fixed. The catalog no longer nests a second copy of the same `Modifier`, and the app no longer wraps only the catalog in a scaffold. `ComplexScreen` still draws `ErrorState` with no scaffold padding. `fallbackUsed` is still unused. |
+| UI-2 | Gallery placeholders use `surfaceVariant`. Dots are still raw white. Search is still by name only. `filterBy` is gone from the view model. |
+| TEST-1 | Room coverage improved for `replaceAll`, locale isolation, and favorite toggle. Still no test for the repository, parsers, migrations 1→5, the calculator view model, or an empty successful catalog refresh. |
+| SEC-1, SEC-2, SEC-3, SEC-4, SEC-5 | Unchanged. Cleartext is still allowed for every build, HTTP bodies are still logged at `BODY`, and release `BASE_URL` is still `https://www.expat-unity.de/cms/` inside `optimization {}`. Video URLs are now another client of that cleartext policy. Backup rules are still the sample templates, while the database holds favorites. |
+| COR-1, COR-3, COR-5, COR-6, COR-7 | Unchanged. The forecast math, page-1 refresh, collapsed HTTP errors, overlapping catalog refresh, and `localhost` on the emulator are as they were on 9 November. |
+| I18N-1 | Fixed. Default and `feature:complex` `error_fav_failed` are English. de, ru, and uk cover offline copy, favorite errors, add/remove labels, tabs, and video controls. Ukrainian `catalog_units_available` includes `other`. |
 
 ## Suggested order of work
 
 | Order | IDs | Outcome |
 | --- | --- | --- |
-| 1 | SEC-1, SEC-2, SEC-3, COR-7 | A release build talks only to the real HTTPS API, and debug reaches the host machine. |
-| 2 | COR-3, COR-6 | The catalog stores every page, and a refresh cannot race itself. Favorites then match the full list. |
-| 3 | COR-1 | The forecast cannot print a negative loan or hide closing costs and tax. |
-| 4 | COR-4, COR-5, I18N-1 | Failures stay diagnosable, and favorite and offline copy match the locale. |
-| 5 | SEC-4, SEC-5, UI-1 | Content policy, backup of favorites, and insets match a production app. |
-| 6 | TEST-1, PERF-1, ARC-2 | Repository and calculator regressions are caught, and data modules stop depending on UI libraries. |
+| 1 | VID-1 | Listings without a video do not play a cartoon. |
+| 2 | SEC-1, SEC-2, SEC-3, COR-7 | Release talks only to the real HTTPS API, and debug reaches the host machine. |
+| 3 | COR-3, NAV-1, MAP-1 | Favorites and the map show the full catalog, the favorites tab does not flash every row, and the camera fits the markers. |
+| 4 | COR-1 | The forecast cannot hide closing costs or print a negative loan. |
+| 5 | COR-4, COR-5 | A bad cached status cannot crash the detail screen, and failures stay diagnosable. |

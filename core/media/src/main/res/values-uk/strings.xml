@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="play_video">Play video</string>
-    <string name="fullscreen">Fullscreen</string>
-    <string name="exit_fullscreen">Exit fullscreen</string>
+    <string name="play_video">Відтворити відео</string>
+    <string name="fullscreen">На весь екран</string>
+    <string name="exit_fullscreen">Вийти з повноекранного режиму</string>
 
 </resources>

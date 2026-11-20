@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Expat Unity</string>
-    <string name="tab_catalog">Catalog</string>
-    <string name="tab_favorites">Favorites</string>
-    <string name="tab_map">Map</string>
+    <string name="tab_catalog">Katalog</string>
+    <string name="tab_favorites">Favoriten</string>
+    <string name="tab_map">Karte</string>
 </resources>
