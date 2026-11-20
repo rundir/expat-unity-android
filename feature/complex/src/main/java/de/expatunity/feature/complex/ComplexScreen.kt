@@ -42,7 +42,7 @@ import de.expatunity.core.ui.FavoriteButton
 import de.expatunity.core.ui.ImageGallery
 import de.expatunity.core.ui.LocalePreviews
 import de.expatunity.core.ui.theme.ExpatUnityTheme
-import de.expatunity.feature.complex.video.ComplexVideo
+import de.expatunity.media.video.ComplexVideo
 
 @Composable
 fun ComplexRoute(

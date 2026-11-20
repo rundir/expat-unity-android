@@ -1,11 +1,11 @@
-package de.expatunity.feature.complex.video
+package de.expatunity.media.video
 
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.expatunity.feature.complex.di.MediaItemFactory
-import de.expatunity.feature.complex.di.PlayerFactory
+import de.expatunity.media.di.MediaItemFactory
+import de.expatunity.media.di.PlayerFactory
 import javax.inject.Inject
 
 @UnstableApi

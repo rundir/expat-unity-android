@@ -1,4 +1,4 @@
-package de.expatunity.feature.complex.di
+package de.expatunity.media.di
 
 import android.content.Context
 import androidx.annotation.OptIn

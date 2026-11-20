@@ -17,7 +17,4 @@
     <string name="action_add_favorite">Add to favorites</string>
     <string name="error_cached_data">Не удалось обновить. Показаны сохранённые данные.</string>
     <string name="action_remove_favorite">Remove from favorites</string>
-    <string name="play_video">Play video</string>
-    <string name="fullscreen">Fullscreen</string>
-    <string name="exit_fullscreen">Exit fullscreen</string>
 </resources>

@@ -1,4 +1,4 @@
-package de.expatunity.feature.complex.video
+package de.expatunity.media.video
 
 import androidx.media3.common.Player
 import io.mockk.every
