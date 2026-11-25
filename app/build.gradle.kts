@@ -7,6 +7,11 @@ plugins {
     alias(libs.plugins.secrets)
 }
 
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
 android {
     namespace = "de.expatunity.app"
     compileSdk {
